@@ -35,8 +35,8 @@ module fire(
     reg[1:0] state = 2'b00;
     parameter IDLE = 2'b00;
     parameter WAITB = 2'b01;
-    parameter WAITO = 2'b10;
-    parameter FIRE = 2'b11;
+    parameter WAITO = 2'b11;
+    parameter FIRE = 2'b10;
     
     reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
@@ -63,8 +63,8 @@ module fire(
             fire_t_b <= 1'b0;
             fire_t_c <= 1'b0;
             fire_t_d <= 1'b0;
-            //state <= IDLE;
-            error_fire <= 1'b0;
+            state <= IDLE;
+            error_fire <= error_fire + 1'b1;
         end
         else
         case(state)
@@ -96,7 +96,7 @@ module fire(
             else if(fire_num == 8'd250 && stopmark == 1'b1)//fire_num == 5 -> 每发射5次，回到等待bodymark   ,需要同时更改下面
                 begin
                     fire_num <= 8'd0;
-                  //  state <= IDLE;
+                    state <= IDLE;
                 end
             else if(fire_num == 8'd250)
                 begin
@@ -167,7 +167,7 @@ module fire(
      
         default:
         begin
-            error_fire <= 1'b1;
+            //error_fire <= 1'b1;
             if(stopmark)
             begin
                // state <= IDLE;

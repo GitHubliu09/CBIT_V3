@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 module Ultrasonic_TOP(
@@ -66,9 +66,10 @@ parameter self_version = 16'h0000;
 /******************** test wire ****************************************/
 wire test1 , test2 , cmd_t;
 wire [1:0]state;
+reg test_reg = 1'b0;
 /******************* test output ********************************/
-assign uart_rx = state[0];
-assign uart_tx = state[1];
+assign uart_rx = bodymark;
+assign uart_tx = oncemark;
 /********************** connect between modules***************************************/
 assign clk_24m = CLK24M;
 assign CLK60M = CLK20M;
@@ -81,7 +82,10 @@ assign oe_15 = error_fire;
 assign oe_20 = bodymark;
 assign oe_nj = stopmark;
 
-
+always@( posedge rst)
+begin
+   test_reg <= ~test_reg;
+end
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),
  .locked(lock)
@@ -114,7 +118,7 @@ cmd_pic cmd_pic(
     .CLK60M(CLK60M),
     .CLK20M(CLK20M),
     .rst(rst),
-    .cmd_in(m2_cmd_in),
+    .cmd_in(cmd_t),//test   m2_cmd_in
     .pic_add(pma),
     .stop_message(stop_message),
     
