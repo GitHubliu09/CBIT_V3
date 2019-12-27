@@ -20,7 +20,7 @@ module edib(
     input rst,
     input collectmark,
     input bodymark,
-    input stopmark,
+//    input stopmark,
     input we,
     input [13:0]wadd,
     input [7:0]data_time,
@@ -82,7 +82,7 @@ write_to_ram write_to_ram(
     .rst(rst),
     .collectmark(collectmark),
     .bodymark(bodymark),
-    .stopmark(stopmark),
+//    .stopmark(stopmark),
     .we_time(we),
     .we_peak(we),
     .add_time(wadd),
@@ -112,7 +112,7 @@ write_to_ram write_to_ram(
     .write_data(write_data_m)
     );
  
- time_data_ram time_data_ram(
+ time_data_ram ram1(
     .wclk( ~CLK60M ),
     .waddr( write_add ),
     .din_sync( write_en ),
@@ -122,6 +122,10 @@ write_to_ram write_to_ram(
     .ra( rd_add_m5 ),
     .dout( rd_m5 )
     );
+    
+peak_data_ram ram2(
+
+);
 
 write_data write_data
 (

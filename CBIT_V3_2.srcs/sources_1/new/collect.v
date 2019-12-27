@@ -9,7 +9,7 @@
  module collect(
     input rst,
     input clk,
-    input collectmark,
+//    input collectmark,
     input bodymark,
     input fire_once,
     input fire_achieve,
@@ -84,10 +84,10 @@ begin
                 c_achieve <= 1'b0;
                 c_once <= 1'b0;
                 we_un <= 1'b0;
-                if(collectmark)
+//                if(collectmark)
                     state <= WAIT;
-                else
-                    state <= IDLE;
+//                else
+//                    state <= IDLE;
             end
             
             WAIT:
@@ -108,7 +108,7 @@ begin
                     state <= DELAY;
                 else
                 begin
-                    state <= WAIT;
+//                    state <= WAIT;
                     c_achieve <= 1'b0;
                     c_once <= 1'b0;
                 end
@@ -147,8 +147,8 @@ begin
                     state <= WAIT;
                     c_once <= 1'b1;
                  end
-                 else
-                    state <= ACQ;
+//                 else
+//                    state <= ACQ;
             end
             
             default:

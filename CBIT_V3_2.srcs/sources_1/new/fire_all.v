@@ -8,10 +8,10 @@
 module fire_all(
     input CLK20M,
     input rst,
-    input collectmark,
+//    input collectmark,
     input bodymark,
     input oncemark,
-    input stopmark,
+//    input stopmark,
     
     output fire_oe,
     output fire_a,
@@ -30,10 +30,10 @@ module fire_all(
 fire fire(
     .rst(rst),
     .clk_20m(CLK20M),
-    .collectmark(collectmark),
+//    .collectmark(collectmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
-    .stopmark(stopmark),
+//    .stopmark(stopmark),
     .oe(fire_oe),
     .fire_a(fire_a),
     .fire_b(fire_b),
@@ -41,9 +41,9 @@ fire fire(
     .fire_d(fire_d),
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
-    .pulse_num(pulse_num),
-    .error_fire(error_fire),
-    .state(state)
+//    .pulse_num(pulse_num),
+    .error_fire(error_fire)
+
 );
 
 

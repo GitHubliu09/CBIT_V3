@@ -18,10 +18,10 @@ module cmd_pic(
     inout [7:0]pic_data,
     
     output int,
-    output collectmark,
+//    output collectmark,
     output bodymark,
     output oncemark,
-    output stopmark,
+//    output stopmark,
     output [7:0]sweep_num,
     output reg change_message,
     output [15:0]message1,
@@ -106,10 +106,10 @@ add_decode add_decode(
     .write_message_en( write_message_en),
     .write_message_add(write_message_add),
     .add_in( pic_add),//test  pic_add
-    .collectmark(collectmark),
+//    .collectmark(collectmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
-    .stopmark(stopmark),
+//    .stopmark(stopmark),
     .stopint(stopint),
     .testpoint(testpoint),
     .sweep_num(sweep_num)

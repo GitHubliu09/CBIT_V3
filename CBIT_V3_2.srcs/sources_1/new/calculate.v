@@ -12,8 +12,9 @@ module calculate(
     output [13:0] add_r,
     input [15:0] data_r,
     input [13:0]collect_num,
-    input collectmark,
-    input stopmark,
+//    input collectmark,
+    input bodymark,
+//    input stopmark,
     input fire_once,
     input collect_once,
     input collect_achieve,
@@ -152,10 +153,10 @@ begin
         case(state)
         IDLE:
         begin
-            if(collectmark)
+//            if(collectmark)
                 state <= STARTCYCLE;
-            else
-                state <= IDLE;
+//            else
+//                state <= IDLE;
         end
         
         STARTCYCLE:
@@ -173,8 +174,8 @@ begin
                 time_cnt <= 14'd0;
                 state <= WAIT;
             end
-            else
-                state <= STARTCYCLE;
+//            else
+//                state <= STARTCYCLE;
         end
         
         STARTONCE:
@@ -184,8 +185,8 @@ begin
             we_peak <= 1'b0;
             if(fire_once)
                 state <= WAIT;
-            else
-                state <= STARTONCE;
+//            else
+//                state <= STARTONCE;
         end
         
         WAIT:
@@ -198,8 +199,8 @@ begin
             end
             else if(collect_once == 1)
                 state <= CAL;
-            else
-                state <= WAIT;
+//            else
+//                state <= WAIT;
         end
         
         CAL:

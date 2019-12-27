@@ -11,7 +11,7 @@ module write_to_ram(
     input rst,
     input collectmark,
     input bodymark,
-    input stopmark,
+//    input stopmark,
     input we_time,
     input we_peak,
     input [13:0]add_time,
@@ -97,8 +97,22 @@ begin
     end
     else
     begin
-        if(collectmark)
-        begin
+//        if(collectmark)
+//        begin
+//            messge_1 <= message1;
+//            messge_2 <= message2;
+//            messge_3 <= message3;
+//            messge_4 <= message4;
+//            messge_5 <= message5;
+//            messge_6 <= message6;
+//            messge_7 <= message7;
+//            messge_8 <= message8;
+//            messge_9 <= message9;
+//            messge_10 <= message10;
+//            messge_11 <= message11;
+//        end
+//        else
+//        begin
             messge_1 <= message1;
             messge_2 <= message2;
             messge_3 <= message3;
@@ -110,21 +124,7 @@ begin
             messge_9 <= message9;
             messge_10 <= message10;
             messge_11 <= message11;
-        end
-        else
-        begin
-            messge_1 <= message1;
-            messge_2 <= message2;
-            messge_3 <= message3;
-            messge_4 <= message4;
-            messge_5 <= message5;
-            messge_6 <= message6;
-            messge_7 <= message7;
-            messge_8 <= message8;
-            messge_9 <= message9;
-            messge_10 <= message10;
-            messge_11 <= message11;
-        end
+//        end
     end
 end
 
@@ -157,10 +157,10 @@ begin
         case(state)
         IDLE:
         begin
-            if(collectmark)
+//            if(collectmark)
                 state <= WAIT;
-            else
-                state <= IDLE;
+//            else
+//                state <= IDLE;
         end
         
         WAIT:
@@ -180,8 +180,8 @@ begin
             calculate_achieve_s <= 1'b0;
             if(bodymark)
                 state <= MSG;
-            else if(stopmark)
-                state <= IDLE;
+//            else if(stopmark)
+//                state <= IDLE;
             else
                 state <= WAIT;
         end

@@ -6,10 +6,8 @@
 module fire(
     input rst,
     input clk_20m,
-    input collectmark,
     input bodymark,
     input oncemark,
-    input stopmark,
     output oe,
     output fire_a,
     output fire_b,
@@ -18,8 +16,7 @@ module fire(
     output fire_once,
     output fire_achieve,
     output [2:0]pulse_num,
-    output error_fire,
-    output state
+    output error_fire
     );
     
     reg error_fire = 1'b0;
@@ -32,16 +29,18 @@ module fire(
     reg fire_t_ach = 1'b0;
     reg    fire_t_once1 ,fire_t_once2,fire_t_ach1 ,fire_t_ach2 ;
     
-    reg[1:0] state = 2'b00;
-    parameter IDLE = 2'b00;
-    parameter WAITB = 2'b01;
-    parameter WAITO = 2'b11;
-    parameter FIRE = 2'b10;
+    reg[4:0] state = 5'b00001 , next_state = 5'b00001;
+    parameter IDLE = 5'b00001;
+    parameter WAITB = 5'b00010;
+    parameter WAITO = 5'b00100;
+    parameter FIRE = 5'b01000;
+    parameter FIREDONE = 5'b10000;
     
     reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
     parameter pulse_cnt_num = 8'd5;//=5 -> 发射4次
     reg [7:0] duration_cnt = 8'd0;
+    reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
     assign oe = 1'b1;
     assign fire_a = fire_t_a;
@@ -52,67 +51,88 @@ module fire(
     assign fire_achieve = fire_t_ach1 | fire_t_ach2;
     assign pulse_num = pulse_cnt_num;
     
+    
+    always@(negedge clk_20m or posedge rst)
+    begin
+        if(rst)
+            state <= IDLE;
+        else
+            state <= next_state;
+    end
+    
+    always@( state ,bodymark,oncemark , fire_t_once)
+    begin
+        next_state = state;
+        case(state)
+            IDLE:
+            begin
+                next_state = WAITB;
+                start_fire = 1'b0;
+                fire_num = 8'd0;
+                fire_t_ach = 1'b0;
+            end
+            WAITB:
+            begin
+//                if(bodymark)
+                    next_state = WAITO;
+            end
+            WAITO:
+            begin
+                if(oncemark)
+                begin
+                    next_state = FIRE;
+                    fire_num = fire_num + 1'b1;
+                end
+                if(bodymark)
+                    next_state = IDLE;
+            end
+            FIRE:
+            begin
+                if(fire_t_once)
+                begin
+                    next_state = FIREDONE;
+                    if(fire_num == 8'd250)
+                        fire_t_ach = 1'b1;
+                end
+                start_fire = 1'b1;
+            end
+            FIREDONE:
+            begin
+                if(fire_num == 8'd250)//发射250次后等待bodymark
+                begin
+                    next_state = IDLE;
+                    fire_t_ach = 1'b0;
+                end
+                else next_state = WAITO;
+                start_fire = 1'b0;
+            end
+            default:
+            begin
+                next_state = IDLE;
+            end
+        endcase
+    end
+    
     always@(posedge clk_20m or posedge rst)
     begin
         if(rst)
         begin
-            fire_num <= 8'd0;
+//            fire_num <= 8'd0;
             pulse_cnt <= 8'd0;
             duration_cnt <= 8'd0;
             fire_t_a <= 1'b0;
             fire_t_b <= 1'b0;
             fire_t_c <= 1'b0;
             fire_t_d <= 1'b0;
-            state <= IDLE;
-            error_fire <= error_fire + 1'b1;
+//            start_fire_t <= 1'b0;
+            fire_t_once <= 1'b0;
         end
         else
-        case(state)
-        IDLE:
         begin
-            fire_t_once <= 1'b0;
-            fire_t_ach <= 1'b0;
-            if(collectmark)
-                state <= WAITB;
-        end
-        
-        WAITB:
-        begin
-            if(bodymark)
-                state <= WAITO;
-            else
+            if(start_fire)
+//                start_fire_t <= 1'b1;
+//            else if(start_fire_t)
             begin
-                fire_t_once <= 1'b0;
-                fire_t_ach <= 1'b0;
-            end
-        end
-        
-        WAITO:
-        begin
-            if(oncemark)
-            begin
-                state <= FIRE;
-            end
-            else if(fire_num == 8'd250 && stopmark == 1'b1)//fire_num == 5 -> 每发射5次，回到等待bodymark   ,需要同时更改下面
-                begin
-                    fire_num <= 8'd0;
-                    state <= IDLE;
-                end
-            else if(fire_num == 8'd250)
-                begin
-                    fire_num <= 8'd0;
-                    state<= WAITB;
-                end
-            else
-            begin
-                fire_t_once <= 1'b0;
-                fire_t_ach <= 1'b0;
-            end
-                
-        end
-        
-        FIRE:
-        begin
             if(pulse_cnt < pulse_cnt_num)
             begin
                  if(duration_cnt == 8'd79)
@@ -135,11 +155,11 @@ module fire(
                             fire_t_b <= 1'b0;
                             if(duration_cnt == 8'd79)
                             begin
-                                  state <= WAITO;
-                                  fire_num <= fire_num + 1;
+//                                  fire_num <= fire_num + 1;
                                   fire_t_once <= 1'b1;
-                                  if(fire_num == 8'd249)
-                                    fire_t_ach <= 1'b1;
+//                                  if(fire_num == 8'd249)
+//                                    fire_t_ach <= 1'b1;
+//                                    start_fire_t <= 1'b0;
                                   pulse_cnt <= 4'd0;
                            end
                            else
@@ -163,22 +183,15 @@ module fire(
                              end
                     end
                 end
-        end
-     
-        default:
-        begin
-            //error_fire <= 1'b1;
-            if(stopmark)
-            begin
-               // state <= IDLE;
             end
             else
-                state <= WAITB;
-            
+            begin
+//                fire_num <= 8'd0;
+                fire_t_once <= 1'b0;
+            end
         end
-        endcase
     end
-    
+
 always @(posedge clk_20m or posedge rst)
 begin
     if(rst)
