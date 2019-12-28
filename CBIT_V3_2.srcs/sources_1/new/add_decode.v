@@ -10,17 +10,17 @@ module add_decode(
     input clk,
     input [8:0] data_in,//data input
     input [14:0] add_in,//address input
-    output read_cmd_en,//¶ÁÃüÁîÊ¹ÄÜ
-    output [5:0]read_cmd_add,//¶ÁÃüÁîµØÖ·
-    output write_message_en,//Ğ´Êı¾İÊ¹ÄÜ
-    output [5:0]write_message_add,//Ğ´Êı¾İµØÖ·
+    output read_cmd_en,//è¯»å‘½ä»¤ä½¿èƒ½
+    output [5:0]read_cmd_add,//è¯»å‘½ä»¤åœ°å€
+    output write_message_en,//å†™æ•°æ®ä½¿èƒ½
+    output [5:0]write_message_add,//å†™æ•°æ®åœ°å€
     output bodymark,
-    output oncemark,        //³İÑÀĞÅºÅ
-    output collectmark,      //ÉÏ´«Êı¾İÃüÁî
-//    output stopmark,         //Í£Ö¹²É¼¯ĞÅºÅ
-    output stopint,          //Í£Ö¹ÖĞ¶Ï
-    output testpoint,       //²âÊÔµØÖ·
-    output [7:0]sweep_num        //ÉÏ´«ÄÄ¸ö²¨ĞÎ£¬=0 -¡·ÉÏ´«Äà½¬²¨
+    output oncemark,        //é½¿ç‰™ä¿¡å·
+    output collectmark,      //ä¸Šä¼ æ•°æ®å‘½ä»¤
+//    output stopmark,         //åœæ­¢é‡‡é›†ä¿¡å·
+    output stopint,          //åœæ­¢ä¸­æ–­
+    output testpoint,       //æµ‹è¯•åœ°å€
+    output [7:0]sweep_num        //ä¸Šä¼ å“ªä¸ªæ³¢å½¢ï¼Œ=0 -ã€‹ä¸Šä¼ æ³¥æµ†æ³¢
     );
 
 reg bodymark,oncemark,collectmark,stopint,testpoint,read_cmd_en,write_message_en;
@@ -40,12 +40,12 @@ assign   oncemark_t =  rst ? 1'b0 : (add_in == 15'b000_1000_0000_0010 ? 1'b1 : 1
 //assign   stopmark = stop;//0x0808
 assign   stopint_t = rst ? 1'b0 :(add_in == 15'b000_1001_0000_1111 ? 1'b1 : 1'b0);//0x090f
 
-assign   read_cmd_en_t = rst ? 1'b0 : (add_in[14:6] == 9'b000_1111_00 ? 1'b1 : 1'b0);//0x0fxx µ±¸ß9Î»Îª3CÊ±£¬¶ÁÈ¡ÃüÁîram£¬µÍ6Î»ÖĞ£¬×î¸ßÒ»Î»ÎªÑ¡ÔñÎ»£¬Ñ¡Ôñ¶ÁÈ¡ÃüÁîµÄ¸ß°ËÎ»»¹ÊÇµÚ°ËÎ»£¬Ê£ÏÂ5Î»ÎªµØÖ·
+assign   read_cmd_en_t = rst ? 1'b0 : (add_in[14:6] == 9'b000_1111_00 ? 1'b1 : 1'b0);//0x0fxx å½“é«˜9ä½ä¸º3Cæ—¶ï¼Œè¯»å–å‘½ä»¤ramï¼Œä½6ä½ä¸­ï¼Œæœ€é«˜ä¸€ä½ä¸ºé€‰æ‹©ä½ï¼Œé€‰æ‹©è¯»å–å‘½ä»¤çš„é«˜å…«ä½è¿˜æ˜¯ç¬¬å…«ä½ï¼Œå‰©ä¸‹5ä½ä¸ºåœ°å€
 assign   read_cmd_add_t = rst ? 6'd0 : ( read_cmd_en ? add_in[5:0] : 6'bz);
 
 assign   testpoint_t = rst ? 1'b0 :(add_in == 15'b111_1111_1111_1111 ? 1'b1 : 1'b0);//0xffff
 
-assign   write_message_en_t =  rst ? 1'b0 : (add_in[14:6] == 9'b000_1110_00 ? 1'b1 : 1'b0);//0x0exx µ±¸ß9Î»Îª0exxÊ±£¬´ú±í¿ªÊ¼Ğ´messegeÊı¾İ¡£
+assign   write_message_en_t =  rst ? 1'b0 : (add_in[14:6] == 9'b000_1110_00 ? 1'b1 : 1'b0);//0x0exx å½“é«˜9ä½ä¸º0exxæ—¶ï¼Œä»£è¡¨å¼€å§‹å†™messegeæ•°æ®ã€‚
 assign   write_message_add_t = rst ? 6'b0 : (write_message_en ? add_in[5:0] : 6'bz);
 /********************************* parameter wire **************************************************************/
 assign sweep_num = sweep_num_t;//0x0817 

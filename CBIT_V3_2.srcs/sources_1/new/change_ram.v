@@ -45,13 +45,13 @@ parameter WAIT = 3'b010;
 parameter CHANGE = 3'b100;
 
 reg ctrl;
-// ctrl = 1 Ê±£¬Ð´ram1£¬¶Áram2
+// ctrl = 1 æ—¶ï¼Œå†™ram1ï¼Œè¯»ram2
 assign w_en1 = rst ? 1'b0 : ( ctrl ? write_en : 1'b0 );
 assign w_add1 = rst ? 14'b0 : ( ctrl ? write_add : 14'b0 );
 assign w_data1 = rst ? 8'b0 : ( ctrl ? write_data : 8'b0 );
 assign r_en1 = rst ? 1'b0 : ( ~ctrl ? ren_m5 : 1'b0 );
 assign r_add1 = rst ? 14'b0 : ( ~ctrl ? rd_add_m5 : 14'b0 );
-//ctrl = 0 Ê±£¬Ð´ram2£¬¶Áram1
+//ctrl = 0 æ—¶ï¼Œå†™ram2ï¼Œè¯»ram1
 assign w_en2 = rst ? 1'b0 : ( ~ctrl ? write_en : 1'b0 );
 assign w_add2 = rst ? 14'b0 : ( ~ctrl ? write_add : 14'b0 );
 assign w_data2 = rst ? 8'b0 : ( ~ctrl ? write_data : 8'b0 );

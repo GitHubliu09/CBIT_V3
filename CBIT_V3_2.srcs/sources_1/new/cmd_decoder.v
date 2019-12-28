@@ -424,7 +424,7 @@ begin
 end
 
 
-//m2rxirqb输出8个clock_m2rx24周期的高电平
+//m2rxirqb杈撳嚭8涓猚lock_m2rx24鍛ㄦ湡鐨勯珮鐢靛钩
 always @(state_ii,m2rxirq_out,int_counter)
 begin
 	m2rxirqb=0;
@@ -437,7 +437,7 @@ begin
 		if(m2rxirq_out==1 )
 			next_state_ii=state_2;
 	state_2:
-			if(int_counter == 4'd8)//m2rxirqb保持8个clock_m2rx24周期的高电平
+			if(int_counter == 4'd8)//m2rxirqb淇濇寔8涓猚lock_m2rx24鍛ㄦ湡鐨勯珮鐢靛钩
 				begin
 					int_counter_clr = 1 ;
 					m2rxirqb = 1 ;

@@ -35,11 +35,11 @@ module fire(
     parameter FIRE = 5'b01000;
     parameter FIREDONE = 5'b10000;
     
-    reg[7:0] fire_num = 8'd0 ;//¼ÆÊı·¢Éä¸öÊı
-    reg [7:0] pulse_cnt = 8'd0;  //ÓÃÓÚ¼ÆÊıµ¥¸ö·¢ÉäÖÜÆÚÄÚµÄ±äÁ¿
-    parameter pulse_cnt_num = 8'd5;//=5 -> ·¢Éä4´Î
+    reg[7:0] fire_num = 8'd0 ;//è®¡æ•°å‘å°„ä¸ªæ•°
+    reg [7:0] pulse_cnt = 8'd0;  //ç”¨äºè®¡æ•°å•ä¸ªå‘å°„å‘¨æœŸå†…çš„å˜é‡
+    parameter pulse_cnt_num = 8'd5;//=5 -> å‘å°„4æ¬¡
     reg [7:0] duration_cnt = 8'd0;
-    reg start_fire = 1'b0 , start_fire_t = 1'b0;//¿ªÊ¼·¢Éä
+    reg start_fire = 1'b0 , start_fire_t = 1'b0;//å¼€å§‹å‘å°„
     
     assign oe = 1'b1;
     assign fire_a = fire_t_a;
@@ -64,7 +64,7 @@ module fire(
     always@( state ,bodymark,oncemark , fire_t_once)
     begin
         next_state = state;
-//        if(bodymark)      //Ö®ºóĞèÒª
+//        if(bodymark)      //ä¹‹åéœ€è¦
 //            fire_num = 8'd0;
         case(state)
             IDLE:
@@ -99,7 +99,7 @@ module fire(
             end
             FIREDONE:
             begin
-                if(fire_num == 8'd250)//·¢Éä250´ÎºóµÈ´ıbodymark
+                if(fire_num == 8'd250)//å‘å°„250æ¬¡åç­‰å¾…bodymark
                 begin
                     next_state = IDLE;
                 end

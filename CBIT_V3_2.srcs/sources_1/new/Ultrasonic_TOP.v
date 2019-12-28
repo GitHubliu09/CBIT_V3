@@ -15,6 +15,7 @@ module Ultrasonic_TOP(
     output adc_oe,
     output adc_clk_ttl,
     output adc_clk_oe,
+    output [1:0]sig_mux,
     output m5_bzo,
     output m5_boo,
     output m7_bzo,
@@ -80,7 +81,7 @@ assign CLK60M = CLK20M;
 //assign fire_b = bodymark;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
-/*********************** 需要放到module里面 *****************************************************/
+/*********************** 闇�瑕佹斁鍒癿odule閲岄潰 *****************************************************/
 assign oe_15 = fire_once;
 assign oe_20 = fire_achieve;
 assign oe_nj = calculate_achieve;
@@ -89,6 +90,7 @@ assign gain[1] = now_num[7];
 assign gain[2] = bodymark;
 assign gain[3] = oncemark;
 assign gain[4] = collect_achieve;
+assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),

@@ -31,16 +31,16 @@ parameter cmd_head = 6'b111000;
 parameter data_head = 6'b000111;
 
 parameter IDLE = 11'b000_0000_0001;
-parameter START = 11'b000_0000_0010;//²úÉúfifo¶ÁÊ¹ÄÜ
+parameter START = 11'b000_0000_0010;//äº§ç”Ÿfifoè¯»ä½¿èƒ½
 parameter START1 = 11'b000_0000_0100;
-parameter LOAD_CMD = 11'b000_0000_1000;//¼ÓÔØÃüÁî
-parameter SET_CMD_PARITY = 11'b000_0001_0000;//ÉèÖÃĞ£ÑéÎ»
-parameter ENCODE_M2_CMD = 11'b000_0010_0000;//±àÂëÃüÁî
-parameter SEND_CMD = 11'b000_0100_0000;//·¢ËÍÃüÁî
-parameter LOAD_DATA = 11'b000_1000_0000;//¼ÓÔØÊı¾İ
-parameter SET_DATA_PARITY = 11'b001_0000_0000;//ÉèÖÃĞ£ÑéÎ»
-parameter ENCODE_M2_DATA = 11'b010_0000_0000;//±àÂëÊı¾İ
-parameter SEND_DATA = 11'b100_0000_0000;//·¢ËÍÊı¾İ
+parameter LOAD_CMD = 11'b000_0000_1000;//åŠ è½½å‘½ä»¤
+parameter SET_CMD_PARITY = 11'b000_0001_0000;//è®¾ç½®æ ¡éªŒä½
+parameter ENCODE_M2_CMD = 11'b000_0010_0000;//ç¼–ç å‘½ä»¤
+parameter SEND_CMD = 11'b000_0100_0000;//å‘é€å‘½ä»¤
+parameter LOAD_DATA = 11'b000_1000_0000;//åŠ è½½æ•°æ®
+parameter SET_DATA_PARITY = 11'b001_0000_0000;//è®¾ç½®æ ¡éªŒä½
+parameter ENCODE_M2_DATA = 11'b010_0000_0000;//ç¼–ç æ•°æ®
+parameter SEND_DATA = 11'b100_0000_0000;//å‘é€æ•°æ®
 
 reg parity;
 reg empty_r1;
@@ -80,7 +80,7 @@ begin
 	next_state = current_state;
 	case(current_state)
 	IDLE:
-		if(empty_r2 == 1'b0)  //empty_r2 == 1'b0  ÔòfifoÖĞÓĞÊı¾İ
+		if(empty_r2 == 1'b0)  //empty_r2 == 1'b0  åˆ™fifoä¸­æœ‰æ•°æ®
 			next_state = START;
 	START:
 		next_state = START1;
@@ -142,14 +142,14 @@ begin
 					bit_count <= 6'd0;
 				end
 			SET_CMD_PARITY, SET_DATA_PARITY:
-				parity <= ^data_reg;  //¶ÔÊı¾İÈ¡Òì»ò£¬»ñÈ¡ÆæÅ¼Ğ£ÑéÎ»£¬M2²ÉÓÃµÄÊÇÆæĞ£ÑéÎ»
+				parity <= ^data_reg;  //å¯¹æ•°æ®å–å¼‚æˆ–ï¼Œè·å–å¥‡å¶æ ¡éªŒä½ï¼ŒM2é‡‡ç”¨çš„æ˜¯å¥‡æ ¡éªŒä½
 			ENCODE_M2_CMD:
 				begin
 				/********************************************************************
-				    ½«²»¹éÁãÂë×ª»»³ÉÂüÂë£¬²»¹éÁãÂëµÄ1¾ÍÊÇÂüÂëµÄ10
-					²»¹éÁãÂëdata_reg =1µÄ»°Êä³öµÄÂüÂëcode_reg¾ÍÊÇ10					
+				    å°†ä¸å½’é›¶ç è½¬æ¢æˆæ›¼ç ï¼Œä¸å½’é›¶ç çš„1å°±æ˜¯æ›¼ç çš„10
+					ä¸å½’é›¶ç data_reg =1çš„è¯è¾“å‡ºçš„æ›¼ç code_regå°±æ˜¯10					
 				*********************************************************************/
-					code_reg[1:0] <= parity ? 2'b01:2'b10;  //×¢Òâ 2'b01:2'b10;´Ë´¦ºÍÏÂÃæµÄ²»Í¬
+					code_reg[1:0] <= parity ? 2'b01:2'b10;  //æ³¨æ„ 2'b01:2'b10;æ­¤å¤„å’Œä¸‹é¢çš„ä¸åŒ
 					code_reg[3:2] <= data_reg[0]? 2'b10:2'b01;
 					code_reg[5:4] <= data_reg[1]? 2'b10:2'b01;
 					code_reg[7:6] <= data_reg[2]? 2'b10:2'b01;

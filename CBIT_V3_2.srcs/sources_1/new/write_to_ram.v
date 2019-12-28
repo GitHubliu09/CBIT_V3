@@ -77,9 +77,9 @@ parameter TIME = 3'b101;
 parameter PEAK = 3'b110;
 parameter DONE = 3'b111;
 
-assign write_add = write_add_t + 1'b1;//Êµ¼ÊÓÃÊ±ºò£¬ÉÏ´«²ÎÊı·¢ÏÖÕûÌåÏòÇ°ÒÆÒ»Î»£¬ËùÒÔÃ¿Ò»¸öµØÖ· +1
+assign write_add = write_add_t + 1'b1;//å®é™…ç”¨æ—¶å€™ï¼Œä¸Šä¼ å‚æ•°å‘ç°æ•´ä½“å‘å‰ç§»ä¸€ä½ï¼Œæ‰€ä»¥æ¯ä¸€ä¸ªåœ°å€ +1
 assign write_data = write_data_t;
-assign write_ram_done = calculate_achieve_t;//ÏÂ½µÑØÊ±£¬´ú±íĞ´ramÍê³É
+assign write_ram_done = calculate_achieve_t;//ä¸‹é™æ²¿æ—¶ï¼Œä»£è¡¨å†™ramå®Œæˆ
 
 
 always@(posedge clk or posedge rst)
@@ -321,7 +321,7 @@ begin
                 write_en <= 1'b0;
         end
         
-        TIME://Êı¾İÆ´½Ó£¬8Î»×ª16bit
+        TIME://æ•°æ®æ‹¼æ¥ï¼Œ8ä½è½¬16bit
         begin
             write_en <= 1'b0;
             if(add_t[0] == 1'b0)
@@ -334,7 +334,7 @@ begin
            state <= PEAK;
         end
         
-        PEAK://Êı¾İÆ´½Ó£¬12bit½Ó16bit
+        PEAK://æ•°æ®æ‹¼æ¥ï¼Œ12bitæ¥16bit
         begin
             state <= DONE;
             if(add_t[1:0] == 2'b00)

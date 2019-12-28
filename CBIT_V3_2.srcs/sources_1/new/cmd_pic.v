@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // cmd_pic.v
-// ´¦ÀíÉÏÎ»»ú·¢À´µÄÃüÁîºÍPIC·¢À´µÄÃüÁî
+// å¤„ç†ä¸Šä½æœºå‘æ¥çš„å‘½ä»¤å’ŒPICå‘æ¥çš„å‘½ä»¤
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -47,7 +47,7 @@ reg [2:0]send_cmd;
 /******************* state reg ******************************/
 reg [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
 reg speed_t,m5m7_switch_t;
-reg speed , m5m7_switch;//speed  0 -> µ¥±¶ËÙ  1->   ËÄ±¶ËÙ  ; switch 0 - > m5  , 1 -> m7
+reg speed , m5m7_switch;//speed  0 -> å•å€é€Ÿ  1->   å››å€é€Ÿ  ; switch 0 - > m5  , 1 -> m7
 reg [15:0]ram_version , rom_version , self_test;
 /******************* test wire ********************************************/
 wire testpoint;
