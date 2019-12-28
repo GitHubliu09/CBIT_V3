@@ -13,6 +13,7 @@ module adc_and_caculate(
     input bodymark,
     input fire_once,
     input fire_achieve,
+    input [7:0]now_num,
 //    input stopmark,
     input adc_ovr,
     input [13:0]adc_data,
@@ -31,7 +32,8 @@ module adc_and_caculate(
     output [13:0]sweep_add,
     output [15:0]sweep_data,
  //   output calculate_once,
-    output calculate_achieve
+    output calculate_achieve,
+    output collect_achieve
     
     );
 
@@ -50,6 +52,7 @@ collect collect(
     .bodymark(bodymark),
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
+    .now_num(now_num),
     
     .adc_ovr(adc_ovr),//when adc_ovr = 1 , overranged or underranged
     .adc_data(adc_data),

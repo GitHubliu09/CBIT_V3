@@ -15,13 +15,14 @@ module Ultrasonic_TOP(
     output adc_oe,
     output adc_clk_ttl,
     output adc_clk_oe,
-    output [4:0]gain,
-    output m2_bzo,
-    output m2_boo,
     output m5_bzo,
     output m5_boo,
     output m7_bzo,
-    output m7_boo,
+    output m7_boo, 
+    output [4:0]gain,
+    output m2_bzo,
+    output m2_boo,
+
     output int_0,
     output uart_rx,
     output uart_tx,
@@ -38,7 +39,6 @@ module Ultrasonic_TOP(
 wire rst;
 /******************* error wire *******************************/
 wire error_fire;
-
 /****************** clock wire *******************************/
 wire CLK20M,CLK60M,CLK24M,clk_24m;
 wire clk_1m;                      //downgoing sampling clock
@@ -63,13 +63,15 @@ wire [2:0]send_cmd;
 wire speed , m5m7_switch;
 wire [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
 parameter self_version = 16'h0000;
+wire [7:0]now_num;
 /******************** test wire ****************************************/
 wire test1 , test2 , cmd_t;
 wire [1:0]state;
 reg test_reg = 1'b0;
+wire collect_achieve;
 /******************* test output ********************************/
-assign uart_rx = bodymark;
-assign uart_tx = oncemark;
+//assign uart_rx = bodymark;
+//assign uart_tx = oncemark;
 /********************** connect between modules***************************************/
 assign clk_24m = CLK24M;
 assign CLK60M = CLK20M;
@@ -78,14 +80,15 @@ assign CLK60M = CLK20M;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
 /*********************** 需要放到module里面 *****************************************************/
-assign oe_15 = 1'b0;
-assign oe_20 = 1'b0;
-assign oe_nj = 1'b0;
+assign oe_15 = fire_once;
+assign oe_20 = fire_achieve;
+assign oe_nj = calculate_achieve;
+assign gain[0] = now_num[0];
+assign gain[1] = now_num[7];
+assign gain[2] = bodymark;
+assign gain[3] = oncemark;
+assign gain[4] = collect_achieve;
 
-always@( posedge rst)
-begin
-   test_reg <= ~test_reg;
-end
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),
  .locked(lock)
@@ -149,6 +152,14 @@ cmd_pic cmd_pic(
     .m5m7_switch(m5m7_switch)
 );
 
+count_mod count_mod(
+    .clk(CLK20M),
+    .rst(rst),
+    .bodymark(bodymark),
+    .oncemark(oncemark),
+    .num(now_num)
+    );
+
 fire_all fire_all(
     .CLK20M(CLK20M),
     .rst(rst),
@@ -176,6 +187,7 @@ adc_and_caculate adc_and_caculate(
     .bodymark(bodymark),
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
+    .now_num(now_num),
 //    .stopmark(stopmark),
     .adc_ovr(adc_ovr),
     .adc_data(adc_data),
@@ -185,7 +197,7 @@ adc_and_caculate adc_and_caculate(
     .adc_oe(adc_oe),
     .adc_clk_ttl(adc_clk_ttl),
     .adc_clk_oe(adc_clk_oe),
-    .gain(gain),
+//    .gain(gain),      //test
     .we_out( we),
     .wadd_out( wadd),
     .data_time(data_time ),
@@ -195,6 +207,7 @@ adc_and_caculate adc_and_caculate(
     .sweep_data( sweep_data),
 //    .calculate_once(calculate_once),
     .calculate_achieve(calculate_achieve)
+//    .collect_achieve(collect_achieve)
 );
 
 edib edib(
@@ -218,6 +231,7 @@ edib edib(
     .data_time( data_time),
     .data_peak(data_peak),
     .calculate_achieve(calculate_achieve),
+    .now_num(now_num),
     .sweep_en(sweep_write_en),
     .sweep_add(sweep_add),
     .sweep_data(sweep_data),

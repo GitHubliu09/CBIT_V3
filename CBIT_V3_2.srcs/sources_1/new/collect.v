@@ -13,6 +13,7 @@
     input bodymark,
     input fire_once,
     input fire_achieve,
+    input [7:0]now_num,
     
     input adc_ovr,//when adc_ovr = 1 , overranged or underranged
     input [13:0]adc_data,
@@ -35,8 +36,8 @@ parameter WAIT = 2'b01;
 parameter DELAY = 2'b10;
 parameter ACQ = 2'b11;
 
-parameter delay_time = 6'd32;//delay time us
-parameter acq_num = 13'd2440;//colect number
+parameter delay_time = 6'd0;//delay time us //32
+parameter acq_num = 13'd3;//colect number //2440
 
 /**************** control wire **********************/
 reg achieve;
@@ -135,7 +136,7 @@ begin
             ACQ:
             begin
                 acq_cnt <= acq_cnt + 1'b1;
-                if(acq_cnt == acq_num && achieve == 1'b1)
+                if(acq_cnt == acq_num && now_num == 8'd249) /// before   achieve == 1'b1
                 begin
                     state <= WAIT;
                     achieve <= 1'b0;

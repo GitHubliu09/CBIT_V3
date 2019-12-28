@@ -19,7 +19,6 @@ module fire(
     output error_fire
     );
     
-    reg error_fire = 1'b0;
     
     reg fire_t_a = 1'b0;
     reg fire_t_b = 1'b0;
@@ -51,6 +50,8 @@ module fire(
     assign fire_achieve = fire_t_ach1 | fire_t_ach2;
     assign pulse_num = pulse_cnt_num;
     
+    assign error_fire = fire_t_ach;
+    
     
     always@(negedge clk_20m or posedge rst)
     begin
@@ -63,6 +64,8 @@ module fire(
     always@( state ,bodymark,oncemark , fire_t_once)
     begin
         next_state = state;
+//        if(bodymark)      //之后需要
+//            fire_num = 8'd0;
         case(state)
             IDLE:
             begin
@@ -73,7 +76,7 @@ module fire(
             end
             WAITB:
             begin
-//                if(bodymark)
+                if(bodymark)
                     next_state = WAITO;
             end
             WAITO:
@@ -83,8 +86,6 @@ module fire(
                     next_state = FIRE;
                     fire_num = fire_num + 1'b1;
                 end
-                if(bodymark)
-                    next_state = IDLE;
             end
             FIRE:
             begin
@@ -101,7 +102,6 @@ module fire(
                 if(fire_num == 8'd250)//发射250次后等待bodymark
                 begin
                     next_state = IDLE;
-                    fire_t_ach = 1'b0;
                 end
                 else next_state = WAITO;
                 start_fire = 1'b0;
