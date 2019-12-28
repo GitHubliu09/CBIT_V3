@@ -69,6 +69,7 @@ wire test1 , test2 , cmd_t;
 wire [1:0]state;
 reg test_reg = 1'b0;
 wire collect_achieve;
+wire test_edib;
 /******************* test output ********************************/
 //assign uart_rx = bodymark;
 //assign uart_tx = oncemark;
@@ -257,7 +258,8 @@ edib edib(
     .m5_bzo(m5_bzo),
     .m5_boo(m5_boo),
     .m2_bzo(m2_bzo),
-    .m2_boo(m2_boo)
+    .m2_boo(m2_boo),
+    .test(test_edib)
 );
 
 

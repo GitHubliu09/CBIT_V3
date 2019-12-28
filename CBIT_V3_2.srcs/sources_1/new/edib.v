@@ -53,11 +53,14 @@ module edib(
     output m5_bzo,
     output m5_boo,
     output m2_bzo,
-    output m2_boo
+    output m2_boo,
+    output test
     );
 
+/********************* test wire ************************************/
+wire test;
 /******************** inside connect wire **************************************/
-wire write_en , clk_fifo_out , ren_m5 , wr_n , cs , speed4x_on , clk_57;
+wire write_en , clk_fifo_out , ren_m5 , wr_n , cs , speed4x_on , clk_57 ,write_ram_done;
 wire [13:0]write_add , rd_add_m5;
 wire [15:0]write_data_m , rd_m5 , db;
 wire [11:0]dsp_ma , ma;
@@ -108,26 +111,26 @@ write_to_ram write_to_ram(
     .message10(message10),
     .message11(message11),
     
+    .write_ram_done(write_ram_done),
     .stop_message(stop_message),
     .write_en(write_en),
     .write_add(write_add),
     .write_data(write_data_m)
     );
  
- time_data_ram ram1(
-    .wclk( ~CLK60M ),
-    .waddr( write_add ),
-    .din_sync( write_en ),
-    .din( write_data_m ),
-    .rclk( ~clk_fifo_out ),
-    .re( ren_m5 ),
-    .ra( rd_add_m5 ),
-    .dout( rd_m5 )
-    );
-    
-peak_data_ram ram2(
-
-);
+ change_ram change_ram(
+    .clk( ~CLK60M ),
+    .rst(rst),
+    .write_ram_done(write_ram_done),
+    .write_add( write_add ),
+    .write_en( write_en ),
+    .write_data( write_data_m ),
+    .clk_fifo_out( ~clk_fifo_out ),
+    .ren_m5( ren_m5 ),
+    .rd_add_m5( rd_add_m5 ),
+    .rd_m5( rd_m5 ),
+    .test(test )
+ );
 
 write_data write_data
 (

@@ -36,6 +36,7 @@ module write_to_ram(
     input [15:0]message10,
     input [15:0]message11,
     
+    output write_ram_done,
     output reg stop_message,
     output write_en,
     output [13:0]write_add,
@@ -78,6 +79,7 @@ parameter DONE = 3'b111;
 
 assign write_add = write_add_t + 1'b1;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;
+assign write_ram_done = calculate_achieve_t;//下降沿时，代表写ram完成
 
 
 always@(posedge clk or posedge rst)
