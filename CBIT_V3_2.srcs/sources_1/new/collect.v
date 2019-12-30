@@ -136,7 +136,7 @@ begin
             ACQ:
             begin
                 acq_cnt <= acq_cnt + 1'b1;
-                if(acq_cnt == acq_num && now_num == 8'd249) /// before   achieve == 1'b1
+                if(acq_cnt == acq_num && now_num == 8'd250) /// before   achieve == 1'b1
                 begin
                     state <= WAIT;
                     achieve <= 1'b0;

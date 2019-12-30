@@ -55,7 +55,7 @@ wire clk_12m;
 /********************* fire wire *************************/
 wire fire_oe,fire_a,fire_b,fire_c,fire_d;
 ///******************* connect wire **************************/
-wire bodymark,oncemark , fire_once , fire_achieve , calculate_once , calculate_achieve , sweep_write_en , we , change_message , stop_message , send_m2;
+wire sendmark,bodymark,oncemark , fire_once , fire_achieve , calculate_once , calculate_achieve , sweep_write_en , we , change_message , stop_message , send_m2;
 wire [7:0]sweep_num;
 wire [13:0]wadd , sweep_add;
 wire [15:0]data_time , data_peak , sweep_data;
@@ -81,9 +81,11 @@ assign CLK60M = CLK20M;
 //assign fire_b = bodymark;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
+/************************* test wire ****************************/
+assign test2 = now_num == 8'd250 ? 1'b1:1'b0;
 /*********************** 需要放到module里面 *****************************************************/
-assign oe_15 = fire_once;
-assign oe_20 = fire_achieve;
+assign oe_15 = test2;
+assign oe_20 = test_edib;
 assign oe_nj = calculate_achieve;
 assign gain[0] = now_num[0];
 assign gain[1] = now_num[7];
@@ -131,7 +133,7 @@ cmd_pic cmd_pic(
     .pic_data(pmd),
     
     .int(int_0),
-//    .collectmark( collectmark),
+    .sendmark( sendmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
 //    .stopmark(stopmark),
@@ -226,7 +228,7 @@ edib edib(
     .clk_41p667k(clk_41p667k),
     .clk_83p33k(clk_83p33k),
     .rst(rst),
-//    .collectmark(collectmark),
+    .sendmark(sendmark),
     .bodymark(bodymark),
 //    .stopmark(stopmark),
     .we(we),

@@ -7,7 +7,7 @@ module write_data
     input clk_60m,
     input clk_w,
     input clk_1m,
-	input calculate_achieve,
+	input start_send,
     output [15:0]dsp_data,
     output reg[11:0]dsp_ma,
     output reg wr_n,
@@ -37,7 +37,7 @@ begin
     else
     begin
        
-        if(calculate_achieve)
+        if(start_send)
         begin
             start <= 1'b1;
             stop <= 1'b0;

@@ -16,16 +16,16 @@ module add_decode(
     output [5:0]write_message_add,//写数据地址
     output bodymark,
     output oncemark,        //齿牙信号
-    output collectmark,      //上传数据命令
+    output sendmark,      //上传数据命令
 //    output stopmark,         //停止采集信号
     output stopint,          //停止中断
     output testpoint,       //测试地址
     output [7:0]sweep_num        //上传哪个波形，=0 -》上传泥浆波
     );
 
-reg bodymark,oncemark,collectmark,stopint,testpoint,read_cmd_en,write_message_en;
+reg bodymark,oncemark,sendmark,stopint,testpoint,read_cmd_en,write_message_en;
 reg [5:0]read_cmd_add,write_message_add;
-wire bodymark_t,oncemark_t,collectmark_t,stopint_t,testpoint_t,read_cmd_en_t,write_message_en_t;
+wire bodymark_t,oncemark_t,sendmark_t,stopint_t,testpoint_t,read_cmd_en_t,write_message_en_t;
 wire [5:0]read_cmd_add_t,write_message_add_t;
 
 
@@ -34,7 +34,7 @@ wire [5:0]read_cmd_add_t,write_message_add_t;
     reg[7:0] sweep_num_t = 8'd1;
     
 /********************************* control wire ***************************************************/    
-assign   collectmark_t =  rst ? 1'b0 : ( add_in == 15'b000_1000_0000_0100 ? 1'b1 : 1'b0);//0x0804s
+assign   sendmark_t =  rst ? 1'b0 : ( add_in == 15'b000_1000_0000_0100 ? 1'b1 : 1'b0);//0x0804s
 assign   bodymark_t = rst ? 1'b0 : (add_in == 15'b000_1000_0000_0001 ? 1'b1 : 1'b0);  //0x0801
 assign   oncemark_t =  rst ? 1'b0 : (add_in == 15'b000_1000_0000_0010 ? 1'b1 : 1'b0);//0x0802
 //assign   stopmark = stop;//0x0808
@@ -67,7 +67,7 @@ begin
     begin
         bodymark <= 1'b0;
         oncemark <= 1'b0;
-        collectmark <= 1'b0;
+        sendmark <= 1'b0;
         stopint <= 1'b0;
         testpoint <= 1'b0;
         read_cmd_en <= 1'b0;
@@ -79,7 +79,7 @@ begin
     begin
         bodymark <= bodymark_t;
         oncemark <= oncemark_t;
-        collectmark <= collectmark_t;
+        sendmark <= sendmark_t;
         stopint <= stopint_t;
         testpoint <= testpoint_t;
         read_cmd_en <= read_cmd_en_t;

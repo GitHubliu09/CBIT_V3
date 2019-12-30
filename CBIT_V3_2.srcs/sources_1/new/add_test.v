@@ -28,11 +28,12 @@ module add_test(
     output [14:0]add
     );
 
-reg [3:0]state;
-parameter IDLE = 4'b0001;
-parameter BODY = 4'b0010;
-parameter ONCE = 4'b0100;
-parameter WAIT = 4'b1000;
+reg [4:0]state;
+parameter IDLE = 5'b00001;
+parameter SEND = 5'b00010;
+parameter BODY = 5'b00100;
+parameter ONCE = 5'b01000;
+parameter WAIT = 5'b10000;
 
 reg [7:0]data_t = 8'b0;
 reg [14:0]add_t = 15'd0;
@@ -62,6 +63,11 @@ begin
             add_t <= 15'd0;
             state <= BODY;
         end
+        SEND:
+        begin
+            add_t <= 15'h0804;
+            state <= BODY;
+        end
         BODY:
         begin
             add_t <= 15'h0801;
@@ -80,8 +86,8 @@ begin
             if(cnt == 12'd1000)
             begin
                 cnt <= 12'd0;
-                if(num == 8'd250)
-                    state <= BODY;
+                if(num == 8'd250) // test /////////// test
+                    state <= SEND;
                 else
                     state <= ONCE;
             end
