@@ -31,7 +31,7 @@ always@(posedge clk_60m , negedge rst)
 begin
     if(!rst)
     begin
-        start <= 1'b0;
+        start <= 1'b0;//  test
         stop <= 1'b0;
     end
     else

@@ -117,6 +117,15 @@ write_to_ram write_to_ram(
     .write_add(write_add),
     .write_data(write_data_m)
     );
+
+//test_change_ram test1(
+//    .clk(CLK60M),
+//    .rst(rst),
+//    .write_ram_done(write_ram_done),
+//    .write_en(write_en),
+//    .write_add(write_add),
+//    .write_data(write_data_m)
+//);
  
  change_ram change_ram(
     .clk( ~CLK60M ),

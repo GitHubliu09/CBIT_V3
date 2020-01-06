@@ -83,11 +83,13 @@ assign CLK60M = CLK20M;
 //assign fire_d = stopmark;
 /************************* test wire ****************************/
 assign test2 = now_num == 8'd250 ? 1'b1:1'b0;
+assign m7_bzo = m5_bzo;
+assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
 assign oe_15 = test2;
 assign oe_20 = test_edib;
 assign oe_nj = calculate_achieve;
-assign gain[0] = now_num[0];
+assign gain[0] = int_0;
 assign gain[1] = now_num[7];
 assign gain[2] = bodymark;
 assign gain[3] = oncemark;
@@ -126,7 +128,7 @@ cmd_pic cmd_pic(
     .CLK60M(CLK60M),
     .CLK20M(CLK20M),
     .rst(rst),
-    .cmd_in(cmd_t),//test   m2_cmd_in
+    .cmd_in(~m2_cmd_in),//test   ~m2_cmd_in  //因为电路图设计原因，需要将输入信号反向输入到该模块中。  //此时输入电平正好与规定电平相反
     .pic_add(pma),
     .stop_message(stop_message),
     

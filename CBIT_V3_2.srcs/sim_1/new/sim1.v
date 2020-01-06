@@ -47,7 +47,7 @@ end
 Ultrasonic_TOP top(
     .clk( clk),
 //    input rst,
-    .m2_cmd_in(),
+    .m2_cmd_in(1'b1),
     .pma(),
     .pmd(), 
     .adc_data(),
