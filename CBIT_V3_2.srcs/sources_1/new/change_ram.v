@@ -43,6 +43,7 @@ assign w_data1 = write_data;
 //assign r_en1 = rst ? 1'b0 : ( ~ctrl ? ren_m5 : 1'b0 );
 //assign r_add1 = rst ? 14'd0 : ( ~ctrl ? rd_add_m5 : 14'd0 );
 //ctrl = 0 时，写ram2，读ram1
+//assign w_en2 = write_en; ////////test
 assign w_en2 = rst ? 1'b0 : ( ~ctrl ? write_en : 1'b0 );
 assign w_add2 = write_add ;
 assign w_data2 = write_data ;
@@ -129,6 +130,8 @@ begin
     end
 end
 
+
+
  time_data_ram ram1(
     .wclk( clk ),
     .waddr( w_add1 ),
@@ -152,11 +155,11 @@ peak_data_ram ram2(
 );
 
 //peak_data_ram testram2(
-//    .wclk( ~clk ),
+//    .wclk( clk ),
 //    .waddr( w_add2 ),
 //    .din_sync( w_en2 ),
 //    .din( w_data2 ),
-//    .rclk( ~clk_fifo_out ),
+//    .rclk( clk_fifo_out ),
 //    .re( ren_m5 ),
 //    .ra( rd_add_m5+1'b1 ),
 //    .dout( rd_m5 )

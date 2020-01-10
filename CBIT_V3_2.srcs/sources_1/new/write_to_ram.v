@@ -61,21 +61,24 @@ reg [8:0]sweep_cnt;
 reg [8:0]time_cnt;
 reg [8:0]peak_cnt;
 reg [3:0]write_add_cnt;
+reg [3:0]interpolation_cnt;
 /************* word[0..10] data ************************/
 reg [15:0]messge_1 , messge_2 ,messge_3 ,messge_4 ,messge_5 ,messge_6 ,messge_7 ,messge_8 ,messge_9 ,messge_10 ,messge_11 ;
 /*************** test wire ****************************************/
 wire [7:0]test;
 assign test = sweep_data[13:6];
 
-reg [2:0]state;
-parameter IDLE = 3'b000;
-parameter WAIT = 3'b001;
-parameter MSG = 3'b010;
-parameter MSG_DONE = 3'b011;
-parameter WAIT_TP = 3'b100;
-parameter TIME = 3'b101;
-parameter PEAK = 3'b110;
-parameter DONE = 3'b111;
+reg [7:0]state,next_state;
+parameter IDLE = 8'b0000_0001;
+parameter WAIT = 8'b0000_0010;
+parameter MSG = 8'b0000_0100;
+parameter MSG_DONE = 8'b0000_1000;
+parameter WAIT_TP = 8'b0001_0000;
+parameter TIME = 8'b0010_0000;
+parameter PEAK = 8'b0100_0000;
+parameter DONE = 8'b1000_0000;
+
+parameter interpolation_num = 4'd0;
 
 assign write_add = write_add_t ;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;
@@ -100,22 +103,6 @@ begin
     end
     else
     begin
-//        if(collectmark)
-//        begin
-//            messge_1 <= message1;
-//            messge_2 <= message2;
-//            messge_3 <= message3;
-//            messge_4 <= message4;
-//            messge_5 <= message5;
-//            messge_6 <= message6;
-//            messge_7 <= message7;
-//            messge_8 <= message8;
-//            messge_9 <= message9;
-//            messge_10 <= message10;
-//            messge_11 <= message11;
-//        end
-//        else
-//        begin
             messge_1 <= message1;
             messge_2 <= message2;
             messge_3 <= message3;
@@ -127,9 +114,46 @@ begin
             messge_9 <= message9;
             messge_10 <= message10;
             messge_11 <= message11;
-//        end
     end
 end
+
+//always@(posedge clk or posedge rst)
+//begin
+//    if(rst)
+//    begin
+//        state <= IDLE;
+//    end
+//    else
+//    begin
+//        state <= next_state;
+//    end
+//end
+
+//always@(state,bodymark)
+//begin
+//    next_state = state;
+//    case(state)
+//    IDLE:
+//    begin
+//        next_state = WAIT;
+//    end
+//    WAIT:
+//    begin
+//        sweep_cnt <= 9'd11;
+//        time_cnt <= 9'd139;
+//        peak_cnt <= 9'd264;
+//        msg_cnt <= 4'd0;
+//        calculate_achieve_s <= 1'b0;
+//        if(bodymark)
+//            next_state <= MSG;
+//    end
+//    MSG:
+//    begin
+    
+//    end
+    
+//    endcase
+//end
 
 always@(posedge clk or posedge rst)
 begin
@@ -197,57 +221,57 @@ begin
                 case(msg_cnt)
                 4'd0 : 
                     begin
-                    write_data_t <= messge_1;
+                    write_data_t <= messge_1;//test messge_1
                     write_add_t <= 14'd0;
                     end
                 4'd1 : 
                     begin
-                    write_data_t <= messge_2;
+                    write_data_t <= messge_2;//test messge_2
                     write_add_t <= 14'd1;
                     end
                 4'd2 : 
                     begin
-                    write_data_t <= messge_3;
+                    write_data_t <= messge_3;//test  messge_3
                     write_add_t <= 14'd2;
                     end
                 4'd3 : 
                     begin
-                    write_data_t <= messge_4;
+                    write_data_t <= messge_4;//test  messge_4
                     write_add_t <= 14'd3;
                     end
                 4'd4 : 
                     begin
-                    write_data_t <= messge_5;
+                    write_data_t <= messge_5;//test messge_5
                     write_add_t <= 14'd4;
                     end
                 4'd5 : 
                     begin
-                    write_data_t <= messge_6;
+                    write_data_t <= messge_6;//test messge_6
                     write_add_t <= 14'd5;
                     end
                 4'd6 : 
                     begin
-                    write_data_t <= messge_7;
+                    write_data_t <= messge_7;//test messge_7
                     write_add_t <= 14'd6;
                     end
                 4'd7 : 
                     begin
-                    write_data_t <= messge_8;
+                    write_data_t <= messge_8;//test messge_8 
                     write_add_t <= 14'd7;
                     end
                 4'd8 : 
                     begin
-                    write_data_t <= messge_9;
+                    write_data_t <= messge_9;//test messge_9
                     write_add_t <= 14'd8;
                     end
                 4'd9 : 
                     begin
-                    write_data_t <= messge_10;
+                    write_data_t <= messge_10;//test messge_10
                     write_add_t <= 14'd9;
                     end
                 4'd10 : 
                     begin
-                    write_data_t <= messge_11;
+                    write_data_t <= messge_11;//test messge_11
                     write_add_t <= 14'd10;
                     end
 //                 4'd11:
@@ -369,7 +393,7 @@ begin
             4'd1 : if(w_time)
                     begin
                     write_add_t <= time_cnt;
-                    write_data_t <= time_cnt; //  time_reg  test
+                    write_data_t <= time_reg; //  time_reg  test
                     write_en <= 1'b1;
                     time_cnt <= time_cnt + 1'b1;
                     end
@@ -377,7 +401,7 @@ begin
             4'd3 : if( w_peak)
                     begin
                     write_add_t <= peak_cnt;
-                    write_data_t <= peak_cnt;// peak_reg  test
+                    write_data_t <= peak_reg;// peak_reg  test
                     write_en <= 1'b1;
                     peak_cnt <= peak_cnt + 1'b1;
                     end
@@ -385,7 +409,7 @@ begin
             4'd5 : if(calculate_achieve_t)
                     begin
                     write_add_t <= peak_cnt;
-                    write_data_t <=peak_cnt;//  peak_t_reg , 8'b0000_0000}  test
+                    write_data_t <=  {peak_t_reg , 8'b0000_0000};//  {peak_t_reg , 8'b0000_0000}  test
                     write_en <= 1'b1;
                     end
             

@@ -26,7 +26,7 @@ module edib(
     input [7:0]data_time,
     input [11:0]data_peak,
     input calculate_achieve,
-    input now_num,
+    input [7:0]now_num,
     input sweep_en,
     input [13:0]sweep_add,
     input [15:0]sweep_data,

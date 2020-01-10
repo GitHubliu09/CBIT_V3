@@ -37,7 +37,7 @@ module fire(
     
     reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
-    parameter pulse_cnt_num = 8'd5;//=5 -> 发射4次
+    parameter pulse_cnt_num = 8'd2;//=5 -> 发射4次
     reg [7:0] duration_cnt = 8'd0;
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     

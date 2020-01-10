@@ -41,7 +41,7 @@ wire rst;
 /******************* error wire *******************************/
 wire error_fire;
 /****************** clock wire *******************************/
-wire CLK20M,CLK60M,CLK24M,clk_24m;
+wire CLK20M,CLK60M,CLK24M,clk_24m,CLK10M;
 wire clk_1m;                      //downgoing sampling clock
 wire clk_2m;
 wire clk_83p33k;                    //m2 upgoing encoding clock
@@ -70,7 +70,7 @@ wire test1 , test2 , cmd_t;
 wire [1:0]state;
 reg test_reg = 1'b0;
 wire collect_achieve;
-wire test_edib;
+wire test_edib,test_count;
 /******************* test output ********************************/
 //assign uart_rx = bodymark;
 //assign uart_tx = oncemark;
@@ -86,18 +86,18 @@ assign test2 = now_num == 8'd250 ? 1'b1:1'b0;
 assign m7_bzo = m5_bzo;
 assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
-assign oe_15 = test2;
-assign oe_20 = test_edib;
-assign oe_nj = calculate_achieve;
-assign gain[0] = int_0;
-assign gain[1] = now_num[7];
-assign gain[2] = bodymark;
-assign gain[3] = oncemark;
-assign gain[4] = collect_achieve;
+assign oe_15 = 1'b0;
+assign oe_20 = 1'b0;
+assign oe_nj = 1'b1;
+assign gain[0] = test_count;
+assign gain[1] = collect_achieve;
+assign gain[2] = calculate_achieve;
+assign gain[3] = test_edib;
+assign gain[4] = 1'b0;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 
-clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),
+clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),.clk_out4(CLK10M),
  .locked(lock)
 );
 
@@ -164,7 +164,8 @@ count_mod count_mod(
     .rst(rst),
     .bodymark(bodymark),
     .oncemark(oncemark),
-    .num(now_num)
+    .num(now_num),
+    .test(test_count)
     );
 
 fire_all fire_all(
@@ -189,6 +190,7 @@ fire_all fire_all(
 adc_and_caculate adc_and_caculate(
     .CLK20M(CLK20M),
     .CLK60M(CLK60M),
+    .clk_adc_sample(CLK20M),
     .rst(rst),
 //    .collectmark(collectmark),
     .bodymark(bodymark),
@@ -213,8 +215,9 @@ adc_and_caculate adc_and_caculate(
     .sweep_add(sweep_add ),
     .sweep_data( sweep_data),
 //    .calculate_once(calculate_once),
+    .collect_achieve(collect_achieve),
     .calculate_achieve(calculate_achieve)
-//    .collect_achieve(collect_achieve)
+    
 );
 
 edib edib(

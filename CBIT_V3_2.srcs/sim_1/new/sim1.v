@@ -24,13 +24,14 @@ module sim1(
 
     );
 
-reg rst , clk , bodymark , oncemark;
+reg rst , clk , bodymark , oncemark, test1;
 
 initial rst = 1'b1;
 initial #10 rst = 1'b0;
 initial clk = 1'b0;
 initial bodymark = 1'b0;
 initial oncemark = 1'b0;
+initial test1 = 1'b0;
 
 initial #200 bodymark = 1'b1;
 initial #202 bodymark = 1'b0;
@@ -43,39 +44,74 @@ begin
     #300 oncemark = 1'b0;
 end
 
+always
+begin
+    #100 test1 = 1'b1;
+    #2 test1 = 1'b0;
+    #300 test1 = 1'b0;
+end
 
-Ultrasonic_TOP top(
-    .clk( clk),
-//    input rst,
-    .m2_cmd_in(1'b1),
-    .pma(),
-    .pmd(), 
-    .adc_data(),
-    .adc_ovr(),
-    .adc_shdn(),
-    .adc_oe(),
-    .adc_clk_ttl(),
-    .adc_clk_oe(),
-    .m5_bzo(),
-    .m5_boo(),
-    .m7_bzo(),
-    .m7_boo(), 
-    .gain(),
-    .m2_bzo(),
-    .m2_boo(),
 
-    .int_0(),
-    .uart_rx(),
-    .uart_tx(),
+
+
+collect collect(
+    .rst(rst),
+    .clk(clk),
+    .clk_smp(clk),
+//    .collectmark(collectmark),
+    .bodymark(bodymark),
+    .fire_once(test1),
+    .fire_achieve( ),
+    .now_num( ),
     
-    .oe_15(),
-    .oe_20(),
-    .oe_nj(),
-    .fire_a(),
-    .fire_b(),
-    .fire_c(),
-    .fire_d()
-    );
+    .adc_ovr( ),//when adc_ovr = 1 , overranged or underranged
+    .adc_data( ),
+    .shdn( ),//shdn=0,oe=0 -> enalbe ... shdn=1,oe=0 -> nap mode ... shdn=1,oe=1 -> sleep mode
+    .oe( ),// adc IC output enable pin
+    .adc_clk_ttl( ),//adc clk
+    .adc_clk_oe( ),// adc clk enable, =1 -> eanble
+    .gain( ),
+    .we_un(  ),
+    .wadd_un(  ),
+    .data_un(  ),
+    .collect_num( ),
+    .collect_achieve( ),
+    .collect_once ( )
+);
+
+
+//Ultrasonic_TOP top(
+//    .clk( clk),
+////    input rst,
+//    .m2_cmd_in(1'b1),
+//    .pma(),
+//    .pmd(), 
+//    .adc_data(),
+//    .adc_ovr(),
+//    .adc_shdn(),
+//    .adc_oe(),
+//    .adc_clk_ttl(),
+//    .adc_clk_oe(),
+//    .m5_bzo(),
+//    .m5_boo(),
+//    .m7_bzo(),
+//    .m7_boo(), 
+//    .gain(),
+//    .m2_bzo(),
+//    .m2_boo(),
+
+//    .int_0(),
+//    .uart_rx(),
+//    .uart_tx(),
+    
+//    .oe_15(),
+//    .oe_20(),
+//    .oe_nj(),
+//    .fire_a(),
+//    .fire_b(),
+//    .fire_c(),
+//    .fire_d()
+//    );
 
 //count_mod count_mod(
 //    .clk(clk),

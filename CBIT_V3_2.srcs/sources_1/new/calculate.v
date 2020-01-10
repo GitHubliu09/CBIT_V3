@@ -12,9 +12,7 @@ module calculate(
     output [13:0] add_r,
     input [15:0] data_r,
     input [13:0]collect_num,
-//    input collectmark,
     input bodymark,
-//    input stopmark,
     input fire_once,
     input collect_once,
     input collect_achieve,
@@ -36,7 +34,6 @@ reg c_o_t,c_o1,c_o2,c_o3,c_o4,c_o5,c_o6;
 reg we_peak;
 
 reg [13:0]acq_cnt;
-reg [13:0]time_cnt;
 reg [13:0]add_cnt;
 reg [15:0]d_amp;
 reg [15:0]a_time;
@@ -140,7 +137,6 @@ begin
     begin
         state <= IDLE;
         acq_cnt <= 14'd0;
-       time_cnt <= 14'd0;
        c_ach <= 1'b0;
        en_r <= 1'b0;
        cl_t_ach <= 1'b0;
@@ -155,8 +151,6 @@ begin
         begin
 //            if(collectmark)
                 state <= STARTCYCLE;
-//            else
-//                state <= IDLE;
         end
         
         STARTCYCLE:
@@ -171,27 +165,20 @@ begin
             add_cnt <= 14'd0;
             if(fire_once)
             begin
-                time_cnt <= 14'd0;
                 state <= WAIT;
             end
-//            else
-//                state <= STARTCYCLE;
         end
         
         STARTONCE:
         begin
-            time_cnt <= 14'd0;
             acq_cnt <= 14'd0;
             we_peak <= 1'b0;
             if(fire_once)
                 state <= WAIT;
-//            else
-//                state <= STARTONCE;
         end
         
         WAIT:
         begin
-            time_cnt <= time_cnt + 1'b1;
             if(collect_once == 1 && collect_achieve == 1)
             begin
                 c_ach <= 1'b1;
@@ -199,15 +186,12 @@ begin
             end
             else if(collect_once == 1)
                 state <= CAL;
-//            else
-//                state <= WAIT;
         end
         
         CAL:
         begin
             en_r <= 1'b1;
             we_peak <= 1'b0;
-            time_cnt <= time_cnt + 1'b1;
             if(acq_cnt == collect_num)
             begin
                 state <= WRITE;
@@ -217,7 +201,7 @@ begin
                 acq_cnt <= acq_cnt + 1'b1;
             if(data_r > d_amp)
             begin
-                d_amp <= {2'b00,data_r};
+                d_amp <= data_r;
                 r_add_s <= acq_cnt;
             end
         end
@@ -237,9 +221,6 @@ begin
             we_peak <= 1'b0;
             d_amp <= 16'd0;
             r_add_s <= 14'd0;
-            //if(stopmark)
-            //    state <= IDLE;
-            //else
              if(c_ach == 1)
             begin
                 state <= STARTCYCLE;

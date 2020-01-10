@@ -8,6 +8,7 @@
 module adc_and_caculate(
     input CLK20M,
     input CLK60M,
+    input clk_adc_sample,
     input rst,
     input collectmark,
     input bodymark,
@@ -48,6 +49,7 @@ assign sweep_data = rdata_un;
 collect collect(
     .rst(rst),
     .clk(CLK20M),
+    .clk_smp(clk_adc_sample),
 //    .collectmark(collectmark),
     .bodymark(bodymark),
     .fire_once(fire_once),
@@ -70,7 +72,7 @@ collect collect(
 );
 
 untreated_data_ram untreated_data_ram(
-    .wclk(CLK20M ),
+    .wclk(~clk_adc_sample ),
     .waddr(wadd_un ),
     .din_sync(we_un ),
     .din(data_un ),
