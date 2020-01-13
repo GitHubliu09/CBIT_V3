@@ -18,7 +18,7 @@ module calculate(
     input collect_achieve,
     input [7:0]sweep_num,
     output reg sweep_en,
-    output reg we_time,
+    output  we_time,
     output reg[13:0]add_time,
     output [13:0]add_peak,
     output reg[15:0]data_time,
@@ -32,6 +32,7 @@ reg en_r;
 reg cl_t_ach , cl_ach1 , cl_ach2 ,cl_ach3,cl_ach4,cl_ach5,cl_ach6;
 reg c_o_t,c_o1,c_o2,c_o3,c_o4,c_o5,c_o6;
 reg we_peak;
+reg we_t1,we_t2;
 
 reg [13:0]acq_cnt;
 reg [13:0]add_cnt;
@@ -62,19 +63,22 @@ assign en_read = en_r;
 assign add_r = acq_cnt;
 assign add_peak = add_cnt;
 assign calculate_achieve = cl_ach1 | cl_ach2 | cl_ach3 | cl_ach4 | cl_ach5 | cl_ach6;
+assign we_time = we_t1 | we_t2;
 
 always@(negedge clk , posedge rst)
 begin
     if(rst)
     begin
-        we_time <= 1'b0;
+        we_t1 <= 1'b0;
+        we_t2 <= 1'b0;
         add_time <= 14'd0;
         data_time <= 8'd0;
         data_peak <= 12'd0;
     end
     else
     begin
-        we_time <= we_peak;
+        we_t1 <= we_peak;
+        we_t2 <= we_t1;
         add_time <= add_cnt;
         data_time <= r_add_s + delay_time;
         data_peak <= d_amp;

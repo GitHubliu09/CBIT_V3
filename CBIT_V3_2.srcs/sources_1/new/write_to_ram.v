@@ -19,10 +19,10 @@ module write_to_ram(
     input [7:0]data_time,
     input [11:0]data_peak,
     input calculate_achieve,
-    input now_num,
-    input sweep_en,
-    input [13:0]sweep_add,
-    input [15:0]sweep_data,
+    input [7:0]now_num,
+    input sweep_en_in,
+    input [13:0]sweep_add_in,
+    input [15:0]sweep_data_in,
     input change_message,
     input [15:0]message1,
     input [15:0]message2,
@@ -40,12 +40,13 @@ module write_to_ram(
     output reg stop_message,
     output write_en,
     output [13:0]write_add,
-    output [15:0]write_data
+    output [15:0]write_data,
+    output test
     );
 
-reg write_en;
-reg [13:0]write_add_t;
-reg [15:0]write_data_t;
+reg write_en,sweep_en;
+reg [13:0]write_add_t,sweep_add;
+reg [15:0]write_data_t,sweep_data;
 /*************** contorl reg *****************************/
 reg change_msg,w_time,w_peak,w_sweep,sweep_en_t;
 reg [1:0]add_t;
@@ -61,12 +62,13 @@ reg [8:0]sweep_cnt;
 reg [8:0]time_cnt;
 reg [8:0]peak_cnt;
 reg [3:0]write_add_cnt;
-reg [3:0]interpolation_cnt;
+reg [7:0]extract_cnt;
+reg [8:0]sweep_i;
 /************* word[0..10] data ************************/
 reg [15:0]messge_1 , messge_2 ,messge_3 ,messge_4 ,messge_5 ,messge_6 ,messge_7 ,messge_8 ,messge_9 ,messge_10 ,messge_11 ;
 /*************** test wire ****************************************/
-wire [7:0]test;
-assign test = sweep_data[13:6];
+wire test;
+assign test = (msg_cnt == 4'd3) ? 1'b1 : 1'b0;
 
 reg [7:0]state,next_state;
 parameter IDLE = 8'b0000_0001;
@@ -78,7 +80,11 @@ parameter TIME = 8'b0010_0000;
 parameter PEAK = 8'b0100_0000;
 parameter DONE = 8'b1000_0000;
 
-parameter interpolation_num = 4'd0;
+reg [1:0] state_e;
+parameter IDLE_E = 2'b01;
+parameter EXT = 2'b10;
+
+parameter extract_num = 8'd0; //抽取位数
 
 assign write_add = write_add_t ;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;
@@ -114,6 +120,60 @@ begin
             messge_9 <= message9;
             messge_10 <= message10;
             messge_11 <= message11;
+    end
+end
+
+always@(posedge clk or posedge rst)
+begin
+    if(rst)
+    begin
+        sweep_en <= 1'b0;
+        sweep_add <= 14'd0;
+        sweep_data <= 16'd0;
+        extract_cnt <= 8'd0;
+        sweep_i <= 9'd0;
+        state_e <= IDLE_E;
+    end
+    else
+    begin
+        sweep_en <= sweep_en_in;
+//        sweep_add <= sweep_i;
+        sweep_add <= sweep_add_in;
+        sweep_data <= sweep_data_in;
+//        case(state_e)
+//        IDLE_E:
+//        begin
+//            extract_cnt <= 8'd0;
+//            sweep_i <= 9'd0;
+//            if(sweep_en_in)
+//                state_e <= EXT;
+//        end
+//        EXT:
+//        begin
+//            if(sweep_i == 9'd260)
+//            begin
+//                state_e <= IDLE;
+//            end
+//            else
+//            begin
+//                if(extract_cnt == extract_num)
+//                begin
+//                    sweep_i <= sweep_i + 1'b1;
+//                    sweep_data <= sweep_data_in;
+//                    extract_cnt <= 8'd0;
+//                end
+//                else
+//                begin
+//                    extract_cnt <= extract_cnt + 1'b1;
+//                end
+//            end
+//        end
+//        default:
+//        begin
+//            state_e <= IDLE_E;
+//        end
+//        endcase
+        
     end
 end
 
@@ -184,7 +244,7 @@ begin
         case(state)
         IDLE:
         begin
-//            if(collectmark)
+            if(bodymark)
                 state <= WAIT;
 //            else
 //                state <= IDLE;
@@ -205,12 +265,12 @@ begin
 //                stop_message <= 1'b0;
 //            end
             calculate_achieve_s <= 1'b0;
-            if(bodymark)
+//            if(bodymark)
                 state <= MSG;
 //            else if(stopmark)
 //                state <= IDLE;
-            else
-                state <= WAIT;
+//            else
+//                state <= WAIT;
         end
         
         MSG://write message into ram(11 word)
@@ -332,12 +392,12 @@ begin
                 write_en <= 1'b1;
                 if(sweep_add[0] == 1'b1)
                 begin
-                    write_data_t[7:0] <=  sweep_data[13:6]; //  sweep_data[13:6]   test
+                    write_data_t[7:0] <=  sweep_data[13:6] ; //  sweep_data[13:6]   test
                     sweep_cnt <= sweep_cnt + 1'b1;
                 end
                 else
                 begin
-                    write_data_t[15:8] <= sweep_data[13:6];  // sweep_data[13:6]  test
+                    write_data_t[15:8] <= sweep_data[13:6] ;  // sweep_data[13:6]  test
                     write_add_t <= sweep_cnt;
                 end
             end
@@ -406,7 +466,7 @@ begin
                     peak_cnt <= peak_cnt + 1'b1;
                     end
             
-            4'd5 : if(calculate_achieve_t)
+            4'd5 : if(now_num == 8'd250)
                     begin
                     write_add_t <= peak_cnt;
                     write_data_t <=  {peak_t_reg , 8'b0000_0000};//  {peak_t_reg , 8'b0000_0000}  test
@@ -417,7 +477,7 @@ begin
                     write_en <= 1'b0;
                     w_time <= 1'b0;
                     w_peak <= 1'b0;
-                    if(calculate_achieve_t)
+                    if(now_num == 8'd250 && write_add_t > 13'd160)
                     begin
                         state <= WAIT;
                         calculate_achieve_s <= 1'b1;

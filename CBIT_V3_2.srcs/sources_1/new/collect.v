@@ -28,7 +28,9 @@
     output [15:0] data_un,
     output [13:0]collect_num,
     output collect_once,
-    output collect_achieve
+    output collect_achieve,
+    output test,
+    output test2
     );
 
 reg [1:0] state_s;
@@ -40,19 +42,20 @@ parameter IDLE_D = 3'b001;
 parameter WAIT_D = 3'b010;
 parameter START = 3'b100;
 
-parameter delay_time = 8'd124;//delay time us //124
+parameter delay_time = 8'd118;//delay time us //124
 parameter acq_num = 13'd330;//colect number //2440
 
 /**************** control wire **********************/
 reg c_achieve,c_achieve_t,c_achieve_stop;
 reg c_once,c_once_t,c_once_stop;
 reg c_achieve1 , c_achieve2 , c_once1 , c_once2;
-reg start_collect,start_t,stop_collect;
-reg num250,num_t;
+reg start_t;
+reg num250;
 /**************** conter *****************************/
 reg [4:0] count_us;
 reg [7:0] count_delay;
 reg [13:0] acq_cnt;
+reg [7:0]now_num_t;
 
 assign gain[4:2] = 3'b000;    
 assign shdn = 1'b0;
@@ -67,6 +70,9 @@ assign collect_num = acq_num;
 
 assign gain[0] = clk;
 assign gain[1] = clk;
+assign test = state_s == ACQ ? 1'b1 : 1'b0;
+assign test2 = num250;
+
 
 always@(posedge clk or posedge rst)
 begin
@@ -76,7 +82,6 @@ begin
         count_us <= 5'd0;
         count_delay <= 8'd0;
         start_t <= 1'b0;
-        num_t <= 1'b0;
     end
     else
     begin
@@ -84,6 +89,7 @@ begin
         IDLE_D:
         begin
             start_t <= 1'b0;
+            
             if(fire_once)
             begin
                 state_d <= WAIT_D;
@@ -91,8 +97,6 @@ begin
         end
         WAIT_D:
         begin
-            if(now_num == 8'd249)
-                    num_t <= 1'b1;
              if(count_delay == delay_time)
                 begin
                     state_d <= START;
@@ -109,9 +113,9 @@ begin
         end
         START:
         begin
-            num_t <= 1'b0;
             start_t <= 1'b1;
-            state_d <= IDLE_D;
+            if(state_s == ACQ)
+                state_d <= IDLE_D;
         end
         default:
         begin
@@ -121,25 +125,6 @@ begin
     end
 end
 
-always@(rst,num_t,c_achieve)
-begin
-    if(rst)
-        num250 = 1'b0;
-    if(num_t)
-        num250 = 1'b1;
-    if(c_achieve)
-        num250 = 1'b0;
-end
-
-always@(rst,start_t,stop_collect)
-begin
-    if(rst)
-        start_collect <= 1'b0;
-    if(start_t)
-        start_collect <= 1'b1;
-    if(stop_collect)
-        start_collect <= 1'b0;
-end
 
 always@(posedge clk_smp or posedge rst)
 begin
@@ -150,7 +135,6 @@ begin
         c_achieve <= 1'b0;
         c_once <= 1'b0;
         we_un <= 1'b0;
-        stop_collect <= 1'b0;
     end
     else
         case(state_s)
@@ -160,8 +144,7 @@ begin
                 c_achieve <= 1'b0;
                 c_once <= 1'b0;
                 we_un <= 1'b0;
-                stop_collect <= 1'b0;
-                if(start_collect)
+                if(start_t)
                 begin
                     state_s <= ACQ;
                     we_un <= 1'b1;
@@ -214,7 +197,7 @@ begin
             
             ACQ:
             begin
-                stop_collect <= 1'b1;
+                we_un <= 1'b1;
                 acq_cnt <= acq_cnt + 1'b1;
                 if(acq_cnt == acq_num && num250) /// before   achieve == 1'b1
                 begin
@@ -222,7 +205,8 @@ begin
                     c_achieve <= 1'b1;
                     c_once <= 1'b1;
                  end 
-                 else if(acq_cnt == acq_num)
+                 else
+                  if(acq_cnt == acq_num)
                  begin
                     state_s <= IDLE_S;
                     c_once <= 1'b1;
@@ -249,6 +233,23 @@ begin
         c_once_t = 1'b1;
     if(c_once_stop)
         c_once_t = 1'b0;
+end
+
+always@(negedge clk_smp or posedge rst)
+begin
+    if(rst)
+    begin
+        now_num_t <= 8'd0;
+        num250 <= 1'b0;
+    end
+    else
+    begin
+        if(now_num == 8'd250)
+            num250 <= 1'b1;
+        else
+            num250 <= 1'b0;
+        now_num_t <= now_num;
+    end
 end
 
 always@ (posedge clk or posedge rst)

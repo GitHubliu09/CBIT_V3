@@ -64,13 +64,13 @@ wire [2:0]send_cmd;
 wire speed , m5m7_switch;
 wire [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
 parameter self_version = 16'h0000;
-wire [7:0]now_num;
+wire [7:0]now_num,now_num_d;
 /******************** test wire ****************************************/
 wire test1 , test2 , cmd_t;
 wire [1:0]state;
 reg test_reg = 1'b0;
 wire collect_achieve;
-wire test_edib,test_count;
+wire test_edib,test_count,test_adc,test_adc2;
 /******************* test output ********************************/
 //assign uart_rx = bodymark;
 //assign uart_tx = oncemark;
@@ -82,17 +82,18 @@ assign CLK60M = CLK20M;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
 /************************* test wire ****************************/
-assign test2 = now_num == 8'd250 ? 1'b1:1'b0;
+assign test1 = wadd == 13'd100 ? 1'b1:1'b0;
+assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
 assign m7_bzo = m5_bzo;
 assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
 assign oe_15 = 1'b0;
 assign oe_20 = 1'b0;
 assign oe_nj = 1'b1;
-assign gain[0] = test_count;
-assign gain[1] = collect_achieve;
-assign gain[2] = calculate_achieve;
-assign gain[3] = test_edib;
+assign gain[0] = test_edib;
+assign gain[1] = bodymark;
+assign gain[2] = test_adc;
+assign gain[3] = calculate_achieve;
 assign gain[4] = 1'b0;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
@@ -152,7 +153,7 @@ cmd_pic cmd_pic(
     .message9(message9),
     .message10(message10),
     .message11(message11),
-    .write_message_en(test1),
+    .write_message_en( ),
     .send_m2( send_m2),
     .send_cmd( send_cmd),
     .speed(speed),
@@ -165,6 +166,7 @@ count_mod count_mod(
     .bodymark(bodymark),
     .oncemark(oncemark),
     .num(now_num),
+    .num_d(now_num_d),
     .test(test_count)
     );
 
@@ -196,7 +198,7 @@ adc_and_caculate adc_and_caculate(
     .bodymark(bodymark),
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
-    .now_num(now_num),
+    .now_num(now_num_d),
 //    .stopmark(stopmark),
     .adc_ovr(adc_ovr),
     .adc_data(adc_data),
@@ -216,7 +218,9 @@ adc_and_caculate adc_and_caculate(
     .sweep_data( sweep_data),
 //    .calculate_once(calculate_once),
     .collect_achieve(collect_achieve),
-    .calculate_achieve(calculate_achieve)
+    .calculate_achieve(calculate_achieve),
+    .test(test_adc),
+    .test2(test_adc2)
     
 );
 
@@ -241,7 +245,7 @@ edib edib(
     .data_time( data_time),
     .data_peak(data_peak),
     .calculate_achieve(calculate_achieve),
-    .now_num(now_num),
+    .now_num(now_num_d),
     .sweep_en(sweep_write_en),
     .sweep_add(sweep_add),
     .sweep_data(sweep_data),

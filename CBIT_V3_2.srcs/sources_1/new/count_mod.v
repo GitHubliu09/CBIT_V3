@@ -10,6 +10,7 @@ module count_mod(
     input bodymark,
     input oncemark,
     output [7:0] num,
+    output reg[7:0]num_d,
     output test
     );
 
@@ -24,6 +25,21 @@ parameter WAIT = 4'b1000;
 
 assign num = num_t;
 assign test = (num == 8'd250) ? 1'b1 : 1'b0;
+
+always@(posedge clk or posedge rst)
+begin
+    if(rst)
+    begin
+        num_d <= 8'd0;
+    end
+    else
+    begin
+        if(num_t != 8'd0)
+            num_d <= num_t;
+        else
+            num_d <= num_d;
+    end
+end
 
 
 always@( posedge clk or posedge rst)

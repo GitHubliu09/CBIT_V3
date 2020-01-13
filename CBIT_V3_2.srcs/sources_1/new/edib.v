@@ -58,12 +58,14 @@ module edib(
     );
 
 /********************* test wire ************************************/
-wire test;
+wire test,test_c_ram,test_w_t_ram;
 /******************** inside connect wire **************************************/
 wire write_en , clk_fifo_out , ren_m5 , wr_n , cs , speed4x_on , clk_57 ,write_ram_done;
 wire [13:0]write_add , rd_add_m5;
 wire [15:0]write_data_m , rd_m5 , db;
 wire [11:0]dsp_ma , ma;
+
+assign test = test_w_t_ram;
 
 
 up_send up_send(
@@ -95,9 +97,9 @@ write_to_ram write_to_ram(
     .data_peak(data_peak),
     .calculate_achieve(calculate_achieve),
     .now_num(now_num),
-    .sweep_en(sweep_en),
-    .sweep_add(sweep_add ),
-    .sweep_data(sweep_data ),
+    .sweep_en_in(sweep_en),
+    .sweep_add_in(sweep_add ),
+    .sweep_data_in(sweep_data ),
     .change_message(change_message),
     .message1(message1),
     .message2(message2),
@@ -115,7 +117,8 @@ write_to_ram write_to_ram(
     .stop_message(stop_message),
     .write_en(write_en),
     .write_add(write_add),
-    .write_data(write_data_m)
+    .write_data(write_data_m),
+    .test(test_w_t_ram)
     );
 
 //test_change_ram test1(
@@ -138,7 +141,7 @@ write_to_ram write_to_ram(
     .ren_m5( ren_m5 ),
     .rd_add_m5( rd_add_m5 ),
     .rd_m5( rd_m5 ),
-    .test(test )
+    .test(test_c_ram )
  );
 
 write_data write_data

@@ -34,7 +34,9 @@ module adc_and_caculate(
     output [15:0]sweep_data,
  //   output calculate_once,
     output calculate_achieve,
-    output collect_achieve
+    output collect_achieve,
+    output test,
+    output test2
     
     );
 
@@ -42,9 +44,13 @@ module adc_and_caculate(
 wire we_un , re_un , collect_once , collect_achieve;
 wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/;
 wire[15:0]data_un , rdata_un;
+/********************* test wire ****************************************************************/
+wire test_collect,test_collect2;
 
 assign sweep_add = radd_un;
 assign sweep_data = rdata_un;
+assign test = collect_once;
+assign test2 = 1'b1;
 
 collect collect(
     .rst(rst),
@@ -68,15 +74,17 @@ collect collect(
     .data_un(data_un ),
     .collect_num(collect_num),
     .collect_achieve(collect_achieve),
-    .collect_once (collect_once)
+    .collect_once (collect_once),
+    .test(test_collect),
+    .test2(test_collect2)
 );
 
 untreated_data_ram untreated_data_ram(
-    .wclk(~clk_adc_sample ),
+    .wclk(clk_adc_sample ),
     .waddr(wadd_un ),
     .din_sync(we_un ),
     .din(data_un ),
-    .rclk(CLK60M ),
+    .rclk(~CLK60M ),
     .re(re_un ),
     .ra(radd_un ),
     .dout(rdata_un )
