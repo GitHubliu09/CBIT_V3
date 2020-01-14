@@ -57,7 +57,8 @@ wire fire_oe,fire_a,fire_b,fire_c,fire_d;
 ///******************* connect wire **************************/
 wire sendmark,bodymark,oncemark , fire_once , fire_achieve , calculate_once , calculate_achieve , sweep_write_en , we , change_message , stop_message , send_m2;
 wire [7:0]sweep_num;
-wire [13:0]wadd , sweep_add;
+wire [13:0]wadd ;
+wire sweep_add;
 wire [15:0]data_time , data_peak , sweep_data;
 wire [2:0]send_cmd;
 /******************** state wire ***************************/
@@ -91,9 +92,9 @@ assign oe_15 = 1'b0;
 assign oe_20 = 1'b0;
 assign oe_nj = 1'b1;
 assign gain[0] = test_edib;
-assign gain[1] = bodymark;
+assign gain[1] = sweep_data[0];
 assign gain[2] = test_adc;
-assign gain[3] = calculate_achieve;
+assign gain[3] = test_adc2;
 assign gain[4] = 1'b0;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
@@ -239,6 +240,7 @@ edib edib(
     .rst(rst),
     .sendmark(sendmark),
     .bodymark(bodymark),
+    .oncemark(oncemark),
 //    .stopmark(stopmark),
     .we(we),
     .wadd(wadd),

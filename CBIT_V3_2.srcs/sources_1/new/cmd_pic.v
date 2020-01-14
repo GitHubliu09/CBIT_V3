@@ -39,7 +39,8 @@ module cmd_pic(
     output send_m2,
     output [2:0]send_cmd,
     output speed,
-    output m5m7_switch
+    output m5m7_switch,
+    output test
     );
 /******************* outside connect wire & reg *********************************/
 reg send_m2 , send_m2_t1,send_m2_t2,send_m2_t3;
@@ -61,6 +62,8 @@ wire [5:0]r_cmd_add , write_message_add;
 
 assign pic_data =  (pic_add[14:6] == 9'b000_1111_00) ? data_pmd : 8'bz;//0x0fxx
 assign pmd_t = pic_data;
+
+assign test = 1'b1;
 
 
 cmd_decoder cmd_decoder

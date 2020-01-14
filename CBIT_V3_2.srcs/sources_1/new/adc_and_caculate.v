@@ -29,8 +29,8 @@ module adc_and_caculate(
     output [13:0]wadd_out,
     output [15:0]data_time,
     output [15:0]data_peak,
-    output sweep_write_en,
-    output [13:0]sweep_add,
+    output  sweep_write_en,
+    output  sweep_add,
     output [15:0]sweep_data,
  //   output calculate_once,
     output calculate_achieve,
@@ -44,13 +44,46 @@ module adc_and_caculate(
 wire we_un , re_un , collect_once , collect_achieve;
 wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/;
 wire[15:0]data_un , rdata_un;
+wire sweep_write_en_t;
 /********************* test wire ****************************************************************/
 wire test_collect,test_collect2;
+reg [15:0]data_un_test;
 
-assign sweep_add = radd_un;
+assign sweep_add = radd_un[0];
 assign sweep_data = rdata_un;
-assign test = collect_once;
-assign test2 = 1'b1;
+assign test = rdata_un == data_un_test ? 1'b1:1'b0;
+assign test2 = rdata_un[0];
+
+//always@(posedge CLK60M or posedge rst)
+//begin
+//    if(rst)
+//    begin
+//        sweep_add <= 1'b0;
+//        sweep_data <= 16'd0;
+//        sweep_write_en <= 1'b0;;
+//    end
+//    else
+//    begin
+//        sweep_add <= radd_un[0];
+//        sweep_data <= rdata_un;
+//        sweep_write_en <= sweep_write_en_t;
+//    end
+//end
+
+always@(negedge CLK60M or posedge rst)
+begin
+    if(rst)
+    begin
+        data_un_test <= 16'd0;
+    end
+    else
+    begin
+        if(rdata_un == 16'd0)
+            data_un_test <= 16'd1;
+        else
+            data_un_test <= rdata_un;
+    end
+end
 
 collect collect(
     .rst(rst),
@@ -80,7 +113,7 @@ collect collect(
 );
 
 untreated_data_ram untreated_data_ram(
-    .wclk(clk_adc_sample ),
+    .wclk(~clk_adc_sample ),
     .waddr(wadd_un ),
     .din_sync(we_un ),
     .din(data_un ),
