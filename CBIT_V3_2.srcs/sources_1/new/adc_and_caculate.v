@@ -84,7 +84,7 @@ begin
         if(data_un_test3 == 16'd0)
             data_un_test4 <= 16'd1;
         else
-            data_un_test4 <= data_un_test;
+            data_un_test4 <= data_un_test3;
     end
 end
 
