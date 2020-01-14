@@ -47,43 +47,48 @@ wire[15:0]data_un , rdata_un;
 wire sweep_write_en_t;
 /********************* test wire ****************************************************************/
 wire test_collect,test_collect2;
-reg [15:0]data_un_test;
+reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 
 assign sweep_add = radd_un[0];
 assign sweep_data = rdata_un;
-assign test = rdata_un == data_un_test ? 1'b1:1'b0;
-assign test2 = rdata_un[0];
-
-//always@(posedge CLK60M or posedge rst)
-//begin
-//    if(rst)
-//    begin
-//        sweep_add <= 1'b0;
-//        sweep_data <= 16'd0;
-//        sweep_write_en <= 1'b0;;
-//    end
-//    else
-//    begin
-//        sweep_add <= radd_un[0];
-//        sweep_data <= rdata_un;
-//        sweep_write_en <= sweep_write_en_t;
-//    end
-//end
+assign test = data_un_test2 == data_un_test ? 1'b1:1'b0;
+assign test2 = data_un_test3 == data_un_test4 ? 1'b1:1'b0;
 
 always@(negedge CLK60M or posedge rst)
 begin
     if(rst)
     begin
         data_un_test <= 16'd0;
+        data_un_test2 <= 16'd0;
     end
     else
     begin
-        if(rdata_un == 16'd0)
-            data_un_test <= 16'd1;
+        data_un_test <= rdata_un;
+        if(data_un_test == 16'd0)
+            data_un_test2 <= 16'd1;
         else
-            data_un_test <= rdata_un;
+            data_un_test2 <= data_un_test;
     end
 end
+
+always@(negedge CLK60M or posedge rst)
+begin
+    if(rst)
+    begin
+        data_un_test3 <= 16'd0;
+        data_un_test4 <= 16'd0;
+    end
+    else
+    begin
+        data_un_test3 <= data_un;
+        if(data_un_test3 == 16'd0)
+            data_un_test4 <= 16'd1;
+        else
+            data_un_test4 <= data_un_test;
+    end
+end
+
+
 
 collect collect(
     .rst(rst),
@@ -113,7 +118,7 @@ collect collect(
 );
 
 untreated_data_ram untreated_data_ram(
-    .wclk(~clk_adc_sample ),
+    .wclk(clk_adc_sample ),
     .waddr(wadd_un ),
     .din_sync(we_un ),
     .din(data_un ),
