@@ -167,17 +167,17 @@ begin
             we_peak <= 1'b0;
             cl_t_ach <= 1'b0;
             add_cnt <= 14'd0;
-            if(fire_once)
-            begin
+//            if(fire_once)
+//            begin
                 state <= WAIT;
-            end
+//            end
         end
         
         STARTONCE:
         begin
             acq_cnt <= 14'd0;
             we_peak <= 1'b0;
-            if(fire_once)
+//            if(fire_once)
                 state <= WAIT;
         end
         

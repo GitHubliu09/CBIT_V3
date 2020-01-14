@@ -223,7 +223,7 @@ begin
 //                stop_message <= 1'b0;
 //            end
             calculate_achieve_s <= 1'b0;
-            if(oncemark)
+//            if(oncemark)
                 state <= MSG;
 //            else if(stopmark)
 //                state <= IDLE;
@@ -448,7 +448,7 @@ begin
                     peak_cnt <= peak_cnt + 1'b1;
                     end
             
-            4'd5 : if(now_num == 8'd250)
+            4'd5 : if(calculate_achieve_t)
                     begin
                     write_add_t <= peak_cnt;
                     write_data_t <=  {peak_t_reg , 8'b0000_0000};//  {peak_t_reg , 8'b0000_0000}  test
@@ -459,7 +459,7 @@ begin
                     write_en <= 1'b0;
                     w_time <= 1'b0;
                     w_peak <= 1'b0;
-                    if(now_num == 8'd250 && write_add_t > 13'd160)
+                    if(calculate_achieve_t && write_add_t > 13'd160)
                     begin
                         state <= WAIT;
                         calculate_achieve_s <= 1'b1;

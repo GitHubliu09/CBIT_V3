@@ -43,7 +43,7 @@ parameter WAIT_D = 3'b010;
 parameter START = 3'b100;
 
 parameter delay_time = 8'd118;//delay time us //124
-parameter acq_num = 13'd330;//colect number //2440
+parameter acq_num = 13'd2400;//colect number //2440
 
 /**************** control wire **********************/
 reg c_achieve,c_achieve_t,c_achieve_stop;
