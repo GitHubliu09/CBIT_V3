@@ -69,7 +69,7 @@ reg [15:0]messge_1 , messge_2 ,messge_3 ,messge_4 ,messge_5 ,messge_6 ,messge_7 
 /*************** test wire ****************************************/
 reg [15:0]sweep_data_test;
 wire test;
-assign test = (sweep_data == sweep_data_test) ? 1'b1 : 1'b0;
+assign test = (write_add_t == 14'd139) ? 1'b1 : 1'b0;
 
 reg [7:0]state,next_state;
 parameter IDLE = 8'b0000_0001;
@@ -81,7 +81,7 @@ parameter TIME = 8'b0010_0000;
 parameter PEAK = 8'b0100_0000;
 parameter DONE = 8'b1000_0000;
 
-parameter extract_num = 8'd0; //抽取位数
+parameter extract_num = 8'd3; //抽取位数
 
 assign write_add = write_add_t ;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;
@@ -334,7 +334,7 @@ begin
             
             if(sweep_en)
                 sweep_en_t <= 1'b1;
-            else if(sweep_cnt == 9'd138)
+            else if(write_add_t == 9'd138)//sweep_cnt
                 sweep_en_t <= 1'b0;
             
             if(sweep_en_t)
@@ -348,36 +348,26 @@ begin
             if(w_sweep)//write sweep int ram
             begin
                 write_en <= 1'b1;
-                if(sweep_add == 1'b1)
+                
+                if(extract_cnt == extract_num)
                 begin
+                    sweep_i <= sweep_i + 1'b1;
+                    if(sweep_i[0] == 1'b1)
+                    begin
                         write_data_t[7:0] <=  sweep_data[13:6] ; //  sweep_data[13:6]   test
                         sweep_cnt <= sweep_cnt + 1'b1;
+                    end
+                    else
+                    begin
+                        write_data_t[15:8] <= sweep_data[13:6] ;  // sweep_data[13:6]  test
+                        write_add_t <= sweep_cnt;
+                    end
+                    extract_cnt <= 8'd0;
                 end
                 else
                 begin
-                        write_data_t[15:8] <= sweep_data[13:6] ;  // sweep_data[13:6]  test
-                        write_add_t <= sweep_cnt;
+                    extract_cnt <= extract_cnt + 1'b1;
                 end
-                
-//                if(extract_cnt == extract_num)
-//                begin
-//                    sweep_i <= sweep_i + 1'b1;
-//                    if(sweep_i[0] == 1'b1)
-//                    begin
-//                        write_data_t[7:0] <=  sweep_data[13:6] ; //  sweep_data[13:6]   test
-//                        sweep_cnt <= sweep_cnt + 1'b1;
-//                    end
-//                    else
-//                    begin
-//                        write_data_t[15:8] <= sweep_data[13:6] ;  // sweep_data[13:6]  test
-//                        write_add_t <= sweep_cnt;
-//                    end
-//                    extract_cnt <= 8'd0;
-//                end
-//                else
-//                begin
-//                    extract_cnt <= extract_cnt + 1'b1;
-//                end
             end
             else
             begin
