@@ -14,9 +14,9 @@ module adc_and_caculate(
     input bodymark,
     input fire_once,
     input fire_achieve,
-    input [7:0]now_num,
+    input [7:0]now_num,  //count_mod计算出来
 //    input stopmark,
-    input adc_ovr,
+    input adc_ovr,//adc输入进来的信号，代表adc输入电压超过或者不到量程
     input [13:0]adc_data,
     input [7:0]sweep_num,
     

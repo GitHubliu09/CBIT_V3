@@ -1,5 +1,8 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
+//m2是双向数据通道主要用于下传命令和控制参数
+//m2下行 20.883kbs，上传 41.666kbs
+//m5与m7是单向数据传输通道，井下数据上传，4倍模式速度 375kbs，单倍速模式 速度93.75kbs
 //
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -7,16 +10,16 @@ module Ultrasonic_TOP(
     input clk,
 //    input rst,
     input m2_cmd_in,
-    input [14:0]pma,
-    inout [7:0]pmd, 
+    input [14:0]pma,        //PMP地址总线
+    inout [7:0]pmd,         //pmp数据总线
     input [13:0]adc_data,
     input adc_ovr,
     output adc_shdn,
     output adc_oe,
     output adc_clk_ttl,
     output adc_clk_oe,
-    output [1:0]sig_mux,
-    output m5_bzo,
+    output [1:0]sig_mux,    //模拟通道选择
+    output m5_bzo,          //m5上传通道的正负信号
     output m5_boo,
     output m7_bzo,
     output m7_boo, 
@@ -24,14 +27,14 @@ module Ultrasonic_TOP(
     output m2_bzo,
     output m2_boo,
 
-    output int_0,
-    output uart_rx,
+    output int_0,//中断信号
+    output uart_rx,//串口，pic与fpga通信
     output uart_tx,
     
-    output oe_15,
-    output oe_20,
-    output oe_nj,
-    output fire_a,
+    output oe_15,//15通道使能信号
+    output oe_20,//20通道使能信号
+    output oe_nj,//泥浆通道使能信号
+    output fire_a,//发射控制信号
     output fire_b,
     output fire_c,
     output fire_d
@@ -59,7 +62,7 @@ wire sendmark,bodymark,oncemark , fire_once , fire_achieve , calculate_once , ca
 wire [7:0]sweep_num;
 wire [13:0]wadd ;
 wire sweep_add;
-wire [15:0]data_time , data_peak , sweep_data;
+wire [15:0]data_time , data_peak , sweep_data;//到时、幅值、扫描数据
 wire [2:0]send_cmd;
 /******************** state wire ***************************/
 wire speed , m5m7_switch;
@@ -101,7 +104,7 @@ assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),.clk_out4(CLK10M),
  .locked(lock)
-);
+);//锁相环产生时钟
 
 clk_div clk_div(
     .clock_24m(clk_24m),
@@ -116,7 +119,7 @@ clk_div clk_div(
     .clk_750k(clk_750k),
     .clk_23p43k(clk_23p43k),
     .clk_12m(clk_12m)
-);
+);//分频
 
 cmd_test cmd_test(
     .clk(clk_41p667k ),

@@ -12,17 +12,17 @@ module write_to_ram(
     input oncemark,
     input bodymark,
 //    input stopmark,
-    input we_time,
-    input we_peak,
-    input [13:0]add_time,
-    input [13:0]add_peak,
-    input [7:0]data_time,
-    input [11:0]data_peak,
+    input we_time,           //（根据前面模块调用时的信息）写使能
+    input we_peak,           //写使能，与上一个输入相同
+    input [13:0]add_time,    //写的地址
+    input [13:0]add_peak,    //写的地址，与上一个输入相同
+    input [7:0]data_time,   //到时
+    input [11:0]data_peak,   //峰值
     input calculate_achieve,
     input [7:0]now_num,
     input sweep_en,
     input sweep_add,
-    input [15:0]sweep_data,
+    input [15:0]sweep_data,//现在是在untreated_data_ram里读出来的
     input change_message,
     input [15:0]message1,
     input [15:0]message2,
@@ -224,7 +224,7 @@ begin
 //            end
             calculate_achieve_s <= 1'b0;
 //            if(oncemark)
-                state <= MSG;
+                state <= MSG;//写message1-11只在每一周期开始时写的，以bodymak信号或者上周结束信号作为开始的同步信号
 //            else if(stopmark)
 //                state <= IDLE;
 //            else
@@ -240,7 +240,7 @@ begin
                 4'd0 : 
                     begin
                     write_data_t <= messge_1;//test messge_1
-                    write_add_t <= 14'd0;
+                    write_add_t <= 14'd0;//对应的地址
                     end
                 4'd1 : 
                     begin
@@ -326,7 +326,7 @@ begin
             begin
                 time_save <= data_time;
                 peak_save <= data_peak;
-                add_t <= add_time[1:0];
+                add_t <= add_time[1:0];//add_time输入的是地址，地址的末位是0 1 交替的 这样来判断拼接
                 state <= TIME;
             end
             else
@@ -334,14 +334,14 @@ begin
             
             if(sweep_en)
                 sweep_en_t <= 1'b1;
-            else if(write_add_t == 9'd138)//sweep_cnt
+            else if(write_add_t == 9'd138)//sweep_cnt//128个波形数据写完了，把使能关掉   地址为11到138  
                 sweep_en_t <= 1'b0;
             
             if(sweep_en_t)
                 w_sweep <= 1'b1;
             else 
             begin
-                sweep_cnt <= 9'd11;
+                sweep_cnt <= 9'd11;//存在ram里面的地址，前面的message已经存了10个地址了，后面的就要从11开始加
                 w_sweep <= 1'b0;
             end
             
@@ -352,9 +352,9 @@ begin
                 if(extract_cnt == extract_num)
                 begin
                     sweep_i <= sweep_i + 1'b1;
-                    if(sweep_i[0] == 1'b1)
+                    if(sweep_i[0] == 1'b1)//拼接时候用的，0 1 2 3  4 排列起来最后一位都是 0 1 交替的
                     begin
-                        write_data_t[7:0] <=  sweep_data[13:6] ; //  sweep_data[13:6]   test
+                        write_data_t[7:0] <=  sweep_data[13:6] ; //  sweep_data[13:6]   test // 只上传了adc的高8位数据
                         sweep_cnt <= sweep_cnt + 1'b1;
                     end
                     else
@@ -395,12 +395,12 @@ begin
             state <= DONE;
             if(add_t[1:0] == 2'b00)
             begin
-                peak_reg[15:4] <= peak_save;
+                peak_reg[15:4] <= peak_save;//12bits的幅度数据
             end
             else if(add_t[1:0] == 2'b01)
             begin
                 peak_reg[3:0] <= peak_save[11:8];
-                peak_t_reg <= peak_save[7:0];
+                peak_t_reg <= peak_save[7:0];//带t临时变量，存储这次周期peak_save中没有存储进peak_reg中的数据
                 w_peak <= 1'b1;
             end
             else if(add_t[1:0] == 2'b10)
@@ -477,7 +477,7 @@ begin
     else 
     begin
     if(calculate_achieve)
-        calculate_achieve_t <= 1'b1;
+        calculate_achieve_t <= 1'b1;//把这个计算完成的脉冲延长（产生和使用不在一个时间）使用完成之后在清零
     if(calculate_achieve_s)
         calculate_achieve_t <= 1'b0;
     end

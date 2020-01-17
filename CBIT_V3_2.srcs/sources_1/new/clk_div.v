@@ -41,7 +41,7 @@ reg rst_t = 1'b0;
 assign reset_ = ~rst_t;
 assign rst = rst_t;
 
-always@(posedge clock_24m)
+always@(posedge clock_24m)                    //产生rst后就不变
 begin
     if(counter == 16'd1000)
     begin
@@ -77,7 +77,7 @@ begin
          cnt1 <= cnt1+1;
 end
 
-always @(negedge reset_ or posedge clock_24m)
+always @(negedge reset_ or posedge clock_24m) //产生1M的时钟
 
 begin
      if(!reset_)

@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
+//     空闲->等待bodymark->等待齿牙（oncemark）->fire(根据高压脉冲数判断是否完成一次，根据发射次数是否完成了一周)->
+//     完成一周的发射后输出发射完成信号，并进入空闲状态等待下一个bodymark信号
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +48,7 @@ module fire(
     assign fire_b = ~fire_t_b;
     assign fire_c = fire_t_d;
     assign fire_d = fire_t_d;
-    assign fire_once = fire_t_once1 | fire_t_once2;
+    assign fire_once = fire_t_once1 | fire_t_once2;      //增加脉冲宽度
     assign fire_achieve = fire_t_ach1 | fire_t_ach2;
     assign pulse_num = pulse_cnt_num;
     
@@ -79,7 +81,7 @@ module fire(
                 if(bodymark)
                     next_state = WAITO;
             end
-            WAITO:
+            WAITO:                              //等待齿牙信号
             begin
                 if(oncemark)
                 begin
@@ -103,7 +105,7 @@ module fire(
                 begin
                     next_state = IDLE;
                 end
-                else next_state = WAITO;
+                else next_state = WAITO;//等待齿牙信号进行下一次发射
                 start_fire = 1'b0;
             end
             default:
@@ -135,7 +137,7 @@ module fire(
             begin
             if(pulse_cnt < pulse_cnt_num)
             begin
-                 if(duration_cnt == 8'd79)
+                 if(duration_cnt == 8'd79)//持续的时间，输入的时钟是20m计数80次对应发射的声波是250khz
                      begin
                         pulse_cnt <= pulse_cnt + 1'b1;
                         duration_cnt <= 8'd0;
@@ -149,7 +151,7 @@ module fire(
              end
              else
              begin
-                    if(pulse_cnt == pulse_cnt_num)
+                    if(pulse_cnt == pulse_cnt_num)  //发射次数到了
                     begin
                             fire_t_a <= 1'b0;
                             fire_t_b <= 1'b0;
@@ -168,7 +170,7 @@ module fire(
                                   fire_t_d <= (duration_cnt <= 8'd39)?1'b1:1'b0;
                            end
                     end
-                    else
+                    else  //这个else进不来
                     begin
                             if(duration_cnt == 8'd99)
                             begin
@@ -178,7 +180,7 @@ module fire(
                              else
                              begin
                                     duration_cnt <= duration_cnt + 1'b1;
-                                    fire_t_a <= (duration_cnt <= 8'd39)?1'b1:1'b0;
+                                    fire_t_a <= (duration_cnt <= 8'd39)?1'b1:1'b0;//产生激发换能器的方波
                                     fire_t_b <= ((duration_cnt >= 8'd40)&&(duration_cnt <=8'd79) )?1'b1:1'b0;
                              end
                     end

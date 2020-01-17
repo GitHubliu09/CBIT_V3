@@ -3,6 +3,7 @@
 //command data = 1.5bits high + 1.5bits low + 16bits data + 1bit check bit = 20 bits
 //data = 1.5bits low + 1.5bits high + 16bits data + 1bit check bit = 20 bits
 //free time -> m2udi = 0 
+//在接收到命令后要判断命令后面是否有数据，有数据之后的状态都带有1
 
 
 module cmd_decoder
@@ -12,8 +13,8 @@ module cmd_decoder
     input clock_m2rx24,//clock 1m
     input clock_system,//24mHz
     output [15:0] rcvd_datareg,//receive data,
-    output wr_fifo_en,
-    output m2rxirqb,
+    output wr_fifo_en,         //接收到数据之后置一，类似于标志位的作用 （时钟是1m）
+    output m2rxirqb,          //useless，前面调用这个模块时没有使用这个输出
     //output [3:0] send_cmd;//?interface_m5,interface_m7???send_cmd[3:0]??
                               //receive low 4bits command , 0x34x
     output [3:0] test
@@ -38,7 +39,7 @@ parameter state_2=2'b10;
 
 
 	
-reg [word_size-1:0] rcv_shftreg;
+reg [word_size-1:0] rcv_shftreg;//存储到接收到的命令是曼码的形式
 reg [4:0] sample_counter;
 reg [5:0] bit_counter;
 reg inc_bit_counter;
@@ -94,7 +95,7 @@ begin
 
 end
 
-always @(posedge clock_m2rx24, negedge reset_)
+always @(posedge clock_m2rx24, negedge reset_)   //状态转移
 begin
      if(reset_==0)
      begin
@@ -207,7 +208,7 @@ begin
 						headshift_clr = 1 ;//clear headreg
 						//rcv_shftreg[33:0] , the first 12bits of the received command 
                         case({rcv_shftreg[33],rcv_shftreg[31],rcv_shftreg[29],rcv_shftreg[27],rcv_shftreg[25],rcv_shftreg[23],rcv_shftreg[21],rcv_shftreg[19],rcv_shftreg[17],rcv_shftreg[15],rcv_shftreg[13],rcv_shftreg[11],rcv_shftreg[9],rcv_shftreg[7],rcv_shftreg[5],rcv_shftreg[3]})
-                            16'b1100_1000_0000_0001://0xc801
+                            16'b1100_1000_0000_0001://0xc801  rcv_shftreg曼彻斯特码对应的内容
                             begin
                                 m2rxirq_out = 1'b1;
                                 next_state = waiting;
@@ -217,10 +218,10 @@ begin
                                 m2rxirq_out = 1'b1;
                                 next_state = waiting;
                             end
-                            16'b1100_1000_0000_0011://0xc803
+                            16'b1100_1000_0000_0011://0xc803，这个命令后面跟有参数
                             begin
                                 m2rxirq_out = 1'b1;
-                                next_state = waiting1;
+                                next_state = waiting1;//waiting1都表示后面跟有参数，需要进行参数的接收
                             end
                             16'b1100_1000_0000_1010://0xc80a
                             begin
@@ -252,7 +253,7 @@ begin
             end
         end
 	waiting1:
-		if(md2udireg == 0)
+		if(md2udireg == 0)     //后面还跟有数据
         	next_state = idle1;
 	idle1:
 		if(md2udireg == 1)
@@ -272,7 +273,7 @@ begin
 			end
 	starting1:
 		begin
-			if(sample_counter != 5'd23)
+			if(sample_counter != 5'd23)//接收的时钟间隔
                 begin
 					inc_sample_counter = 1 ;
                 end
@@ -284,11 +285,11 @@ begin
 					end
             if (disturb_cnt != 3'b100)
 		        if(headreg[2:0] == 3'b000 || headreg[2:0] == 3'b010  ||headreg[2:0] == 3'b110)
-                 next_state = idle1; 
+                 next_state = idle1; //前三个数据头不对则重新接收
                  else 
                  next_state = state;
    
-            else begin
+            else begin//数据头接收完成
 
     			if(headreg == 8'b01111001 || headreg == 8'b01111010 || headreg == 8'b01110101 || headreg == 8'b01110110)//data
     				begin
@@ -320,9 +321,9 @@ begin
 					end
 				else
 					begin
-						next_state = waiting1;
+						next_state = waiting1;//接收完成跳转到等待状态
 						clr_bit_counter=1;
-						load=1;
+						load=1;               //接收到的数据载入完成，
 						headshift_clr = 1 ;
 						m2rxirq_out = 1'b1;		 
 					end
@@ -379,7 +380,7 @@ begin
 				end
 				
 			if(shift==1)
-				rcv_shftreg<={rcv_shftreg[word_size-2:0],md2udi};
+				rcv_shftreg<={rcv_shftreg[word_size-2:0],md2udi};//接收cmd
 			
 			if(headshift == 1)begin
             	headreg <= {headreg[6:0],md2udi};//move datahead into headreg

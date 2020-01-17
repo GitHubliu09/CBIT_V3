@@ -33,7 +33,8 @@ wire [5:0]read_cmd_add_t,write_message_add_t;
 //    reg stop = 1'b0;
     reg[7:0] sweep_num_t = 8'd1;
     
-/********************************* control wire ***************************************************/    
+/********************************* control wire ***************************************************/       
+/***********************因为下面的都是1bit的信息 只根据pic单片机地址线的值来决定就好了 ***********************/
 assign   sendmark_t =  rst ? 1'b0 : ( add_in == 15'b000_1000_0000_0100 ? 1'b1 : 1'b0);//0x0804s
 assign   bodymark_t = rst ? 1'b0 : (add_in == 15'b000_1000_0000_0001 ? 1'b1 : 1'b0);  //0x0801
 assign   oncemark_t =  rst ? 1'b0 : (add_in == 15'b000_1000_0000_0010 ? 1'b1 : 1'b0);//0x0802
@@ -48,7 +49,7 @@ assign   testpoint_t = rst ? 1'b0 :(add_in == 15'b111_1111_1111_1111 ? 1'b1 : 1'
 assign   write_message_en_t =  rst ? 1'b0 : (add_in[14:6] == 9'b000_1110_00 ? 1'b1 : 1'b0);//0x0exx 当高9位为0exx时，代表开始写messege数据。
 assign   write_message_add_t = rst ? 6'b0 : (write_message_en ? add_in[5:0] : 6'bz);
 /********************************* parameter wire **************************************************************/
-assign sweep_num = sweep_num_t;//0x0817 
+assign sweep_num = sweep_num_t;//0x0817 地址为0x0817是 数据线上的数据表示sweep_num 
 
 always@(posedge clk or posedge rst)
 begin

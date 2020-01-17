@@ -6,17 +6,17 @@
 
 
 module cmd_store(
-    input wclk,
-    input rclk,
+    input wclk,//1M
+    input rclk,//20M
     input rst,
-    input rcv_cmd,
+    input rcv_cmd,//write_fifo_en
  //   input testpoint,
     input [15:0]rcvd_datareg,
-    input ren,
-    input [5:0]add,
-    output [7:0]data_out,
-    input stopint,
-    output reg int
+    input ren,    //r_cmd_en
+    input [5:0]add, //r_cmd_add
+    output [7:0]data_out,//data_pmd
+    input stopint,//停止中断，output int always be 0
+    output reg int   //中断
 
     );
 
@@ -30,7 +30,6 @@ wire [13:0]rdaddrecc2;
 
 reg [7:0]din_high,din_low;
 reg wen;
-reg rcv_c;
 reg int_t;
 reg [4:0]waddr;
 reg [4:0]counter;
@@ -41,11 +40,11 @@ parameter IDLE = 2'b00;
 parameter SAVE = 2'b01;
 parameter DONE = 2'b10;
 
-parameter num23 = 5'b10101;
+parameter num23 = 5'b10101;//16+4+1,表示命令的22个参数 对应的命令是c803
 parameter num3 = 5'b00010;
 parameter num4 = 5'b00011;
 
-assign data_out = add[5] ? data_high : data_low;
+assign data_out = add[5] ? data_high : data_low;//判断第6位（根据add_decode模块来的），对应ram3或ram4//判断第6位（根据add_decode模块来的），对应ram3或ram4//判断第6位（根据add_decode模块来的），对应ram3或ram4//判断第6位（根据add_decode模块来的），对应ram3或ram4//判断第6位（根据add_decode模块来的），对应ram3或ram4//判断第6位（根据add_decode模块来的），对应ram3或ram4
 
 //test ---  change wclk to rclk
 //assign wclk = rclk;
@@ -61,7 +60,6 @@ begin
         state <= IDLE;
         din_high <= 8'd0;
         din_low <= 8'd0;
-        rcv_c <= 1'b0;
     end
     else
     begin
@@ -70,7 +68,6 @@ begin
         begin
             int_t <= 1'b0;
             waddr <= 5'd0;
-            rcv_c <= 1'b0;
             test_cnt <= 1'b1;
             //test
 //            if(testpoint)
@@ -87,15 +84,14 @@ begin
             
             
             //  usefull
-            if(rcv_cmd)
+            if(rcv_cmd)//写ram使能
             begin
                 state <= SAVE;
                 din_high <= rcvd_datareg[15:8];
                 din_low <= rcvd_datareg[7:0];
-                rcv_c <= 1'b1;
-                wen <= 1'b1;
+                wen <= 1'b1;//写ram使能
                 if(rcvd_datareg[7:0] == 8'b0000_0011)
-                    counter <= num23;
+                    counter <= num23;//不同命令后面的参数个数
                 else if(rcvd_datareg[7:0] == 8'b0000_1010)
                     counter <= num3;
                 else if(rcvd_datareg[7:0] == 8'b0011_0011 || rcvd_datareg[7:0] == 8'b0011_0100)
@@ -132,14 +128,12 @@ begin
             else
             begin
                 wen <= 1'b1;
-                rcv_c <= 1'b0;
                 if(rcv_cmd)
                 begin
                     counter <= counter - 1'b1;
-                    waddr <= waddr + 1'b1;
+                    waddr <= waddr + 1'b1;//ram地址加一
                     din_high <= rcvd_datareg[15:8];
                     din_low <= rcvd_datareg[7:0];
-                    rcv_c <= 1'b1;
                 end
             end
         end
@@ -149,7 +143,6 @@ begin
             int_t <= 1'b1;
             wen <= 1'b0;
             state <= IDLE;
-            rcv_c <= 1'b0;
         end
         
         default:
@@ -181,20 +174,21 @@ end
 
 
 
-blk_mem_gen_3 ram3(
+blk_mem_gen_3 ram3(     //双端口ram
 .clka(~wclk),
-.ena(wen),
-.wea(wen),
+.ena(wen), //时钟使能
+.wea(wen), //写使能
 .addra(waddr),
 .dina(din_high),
 .clkb(rclk),
-.enb(ren),
+.enb(ren), 
 .addrb(add[4:0]),
 .doutb(data_high),
-.sbiterr( sbiterr1),
+.sbiterr( sbiterr1),            //调用ram ip核后面的这三句不管。
 .dbiterr( dbiterr1),
 .rdaddrecc(rdaddrecc1 )
 );
+
 
 blk_mem_gen_4 ram4(
 .clka(~wclk),

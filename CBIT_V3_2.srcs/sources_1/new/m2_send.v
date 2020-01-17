@@ -1,12 +1,13 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-//
+////m2上传 上传的全是数据 这里使用的是之前m2接收的模块 其中变量的定义没有改 其实这里全是发送的数据**
+
 //////////////////////////////////////////////////////////////////////////////////
 module m2_send(
     input empty, //fifo empty flag
     input rstn,
     input clock_41p766k,
-    input [15:0] data,
+    input [15:0] data,//fifo 读出的数据
     output reg rd_en,
     output m2_bzo,
     output m2_boo
@@ -77,7 +78,7 @@ begin
 	ENCODE_M2_CMD:
 		next_state = SEND_CMD;
 	SEND_CMD:
-		if((empty_r2 == 1'b0) && (bit_count == 6'd40))
+		if((empty_r2 == 1'b0) && (bit_count == 6'd40))// 都是存数据 这里不存在先传命令在传数据的情况
 			next_state = LOAD_DATA;
 		else if((empty_r2 == 1'b1) && (bit_count == 6'd40))
 			next_state = IDLE;
@@ -88,9 +89,9 @@ begin
 	ENCODE_M2_DATA:
 		next_state = SEND_DATA;
 	SEND_DATA:
-		if(empty_r2 == 1'b0 && (bit_count == 6'd40))
+		if(empty_r2 == 1'b0 && (bit_count == 6'd40))//fifo中有数据
 			next_state = LOAD_DATA;
-		else if((empty_r2 == 1'b1) && (bit_count == 6'd40))
+		else if((empty_r2 == 1'b1) && (bit_count == 6'd40))//fifo中无数据
 			next_state = IDLE;
 	default:
 		next_state = IDLE;

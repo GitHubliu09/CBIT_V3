@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// 计算
+// 计算，从存ADC数据的那个RAM中取数据
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -16,10 +16,10 @@ module calculate(
     input fire_once,
     input collect_once,
     input collect_achieve,
-    input [7:0]sweep_num,
-    output reg sweep_en,
-    output  we_time,
-    output reg[13:0]add_time,
+    input [7:0]sweep_num,//*********要上传的波形的位置
+    output reg sweep_en,//  *********************上传波形使能
+    output  we_time,//(we_out)
+    output reg[13:0]add_time,//(wadd_out)
     output [13:0]add_peak,
     output reg[15:0]data_time,
     output reg[15:0]data_peak,
@@ -41,7 +41,7 @@ reg [15:0]a_time;
 reg [15:0]a_amp;
 reg [13:0]r_add_s;
 reg [8:0]sweep_cnt = 9'd0;
-reg [7:0]sweep_t;
+reg [7:0]sweep_t;//***********sweep_t表示临时变量
 reg [7:0]sweep_num1,sweep_num2;
 reg sweep_change;
 
@@ -80,7 +80,7 @@ begin
         we_t1 <= we_peak;
         we_t2 <= we_t1;
         add_time <= add_cnt;
-        data_time <= r_add_s + delay_time;
+        data_time <= r_add_s + delay_time;//到时等于adc开始采集的时间（delay） + 采集时的时间（r_add_s）
         data_peak <= d_amp;
     end
 end
@@ -123,6 +123,7 @@ begin
             end
             else if(sweep_cnt > sweep_t)
                 sweep_cnt <= sweep_cnt + sweep_num1 - 8'd250;
+                //波形是从0->249组，由于fpga是并行执行的结构 不能让程序中上传波形的位置计数有大于249的时候 ，因此比较的数应该向上面这样设计
             else
                 sweep_cnt <= sweep_cnt + sweep_num1;
         end
@@ -206,7 +207,7 @@ begin
             if(data_r > d_amp)
             begin
                 d_amp <= data_r;
-                r_add_s <= acq_cnt;
+                r_add_s <= acq_cnt;//这个是峰值对应的时间
             end
         end
         

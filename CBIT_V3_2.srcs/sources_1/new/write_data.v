@@ -8,8 +8,8 @@ module write_data
     input clk_w,
     input clk_1m,
 	input start_send,
-    output [15:0]dsp_data,
-    output reg[11:0]dsp_ma,
+    output [15:0]dsp_data,//需要上传的数据的个数
+    output reg[11:0]dsp_ma,//控制m5和m7通道的
     output reg wr_n,
     output xz6_cs,
     output speed4x_on

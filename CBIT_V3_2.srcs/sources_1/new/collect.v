@@ -24,10 +24,10 @@
     output adc_clk_oe,// adc clk enable, =1 -> eanble
     output [4:0]gain,
     output reg we_un,
-    output [13:0] wadd_un,
+    output [13:0] wadd_un,//就和采集的点数对应起来，
     output [15:0] data_un,
     output [13:0]collect_num,
-    output collect_once,
+    output collect_once,     //采集完成后才进行计算
     output collect_achieve,
     output test,
     output test2
@@ -43,7 +43,7 @@ parameter WAIT_D = 3'b010;
 parameter START = 3'b100;
 
 parameter delay_time = 8'd50;//delay time us //124
-parameter acq_num = 13'd512;//colect number //2440
+parameter acq_num = 13'd512;//colect number 一次回波ADC采集的点数//2440
 
 /**************** control wire **********************/
 reg c_achieve,c_achieve_t,c_achieve_stop;
@@ -103,7 +103,7 @@ begin
                     count_delay <= 8'd0;
                     count_us <= 5'd0;
                 end
-                else if(count_us == 5'd19)
+                else if(count_us == 5'd19)//时钟是20M的。计数20次表示1us。
                 begin
                     count_us <= 5'd0;
                     count_delay <= count_delay + 1'b1;
@@ -202,14 +202,14 @@ begin
                 if(acq_cnt == acq_num && num250) /// before   achieve == 1'b1
                 begin
                     state_s <= IDLE_S;
-                    c_achieve <= 1'b1;
+                    c_achieve <= 1'b1;//一周的数据采集完成 
                     c_once <= 1'b1;
                  end 
                  else
                   if(acq_cnt == acq_num)
                  begin
                     state_s <= IDLE_S;
-                    c_once <= 1'b1;
+                    c_once <= 1'b1;//一次采集完成
                  end
 //                 else
 //                    state <= ACQ;
@@ -275,7 +275,7 @@ begin
         else if(!c_once)
             c_once_stop <= 1'b0;
             
-        c_achieve1 <= c_achieve_t;
+        c_achieve1 <= c_achieve_t;//延时使数据稳定或者可以增加数据的脉冲宽度
         c_achieve2 <= c_achieve1;
         c_once1 <= c_once_t;
         c_once2 <= c_once1;

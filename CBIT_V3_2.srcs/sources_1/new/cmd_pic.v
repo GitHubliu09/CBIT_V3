@@ -2,6 +2,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // cmd_pic.v
 // 处理上位机发来的命令和PIC发来的命令
+//pic单片机 地址线 15位，数据线 8位
+//首先对命令和数据进行译码->在对地址进行译码，并输出读ram的地址和使能->命令和数据的存储和读取
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -15,15 +17,15 @@ module cmd_pic(
     input [14:0]pic_add,
     input stop_message,
     
-    inout [7:0]pic_data,
+    inout [7:0]pic_data,                //双向数据线
     
-    output int,
+    output int,                          //通过中断通知pic接收到命令
     output sendmark,
-    output bodymark,
-    output oncemark,
+    output bodymark,                    //一周的起始位置
+    output oncemark,                    //一次齿牙信号
 //    output stopmark,
-    output [7:0]sweep_num,
-    output reg change_message,
+    output [7:0]sweep_num,              //表示上传的是一次采集的250点中的哪一个点
+    output reg change_message,          //上传的11word的信息
     output [15:0]message1,
     output [15:0]message2,
     output [15:0]message3,
@@ -37,8 +39,8 @@ module cmd_pic(
     output [15:0]message11,    
     output write_message_en,
     output send_m2,
-    output [2:0]send_cmd,
-    output speed,
+    output [2:0]send_cmd,                  //m2通道上传的信息 下发命令（16bit）+ 状态字（16bit）
+    output speed,                          //上传速度选择 单倍/四倍
     output m5m7_switch,
     output test
     );
