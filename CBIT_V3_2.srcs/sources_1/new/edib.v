@@ -66,7 +66,7 @@ wire [13:0]write_add , rd_add_m5;
 wire [15:0]write_data_m , rd_m5 , db;
 wire [11:0]dsp_ma , ma;
 
-assign test = test_w_t_ram;
+assign test = test_c_ram;
 
 
 up_send up_send(

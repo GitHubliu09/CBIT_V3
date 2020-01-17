@@ -81,7 +81,7 @@ parameter TIME = 8'b0010_0000;
 parameter PEAK = 8'b0100_0000;
 parameter DONE = 8'b1000_0000;
 
-parameter extract_num = 8'd3; //抽取位数
+parameter extract_num = 8'd1; //抽取位数
 
 assign write_add = write_add_t ;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;

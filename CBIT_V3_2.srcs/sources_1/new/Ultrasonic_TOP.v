@@ -91,7 +91,7 @@ assign m7_boo = m5_boo;
 assign oe_15 = 1'b0;
 assign oe_20 = 1'b0;
 assign oe_nj = 1'b1;
-assign gain[0] = oncemark;
+assign gain[0] = test_edib;
 assign gain[1] = bodymark;
 assign gain[2] = test_adc;
 assign gain[3] = test_adc2;
@@ -193,7 +193,7 @@ fire_all fire_all(
 adc_and_caculate adc_and_caculate(
     .CLK20M(CLK20M),
     .CLK60M(CLK60M),
-    .clk_adc_sample(CLK20M),
+    .clk_adc_sample(clk_2m),
     .rst(rst),
 //    .collectmark(collectmark),
     .bodymark(bodymark),

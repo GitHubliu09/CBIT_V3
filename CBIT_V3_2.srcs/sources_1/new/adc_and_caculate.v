@@ -52,7 +52,7 @@ reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 assign sweep_add = radd_un[0];
 assign sweep_data = rdata_un;
 assign test = data_un_test2 == data_un_test ? 1'b1:1'b0;
-assign test2 = data_un_test3 == data_un_test4 ? 1'b1:1'b0;
+assign test2 = we_un ? 1'b1:1'b0;
 
 always@(negedge CLK60M or posedge rst)
 begin
