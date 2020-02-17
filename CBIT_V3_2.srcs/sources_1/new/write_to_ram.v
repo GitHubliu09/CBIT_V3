@@ -239,17 +239,17 @@ begin
                 case(msg_cnt)
                 4'd0 : 
                     begin
-                    write_data_t <= messge_1;//test messge_1
+                    write_data_t <= 16'd1;//test messge_1
                     write_add_t <= 14'd0;//对应的地址
                     end
                 4'd1 : 
                     begin
-                    write_data_t <= messge_2;//test messge_2
+                    write_data_t <= 16'd2;//test messge_2
                     write_add_t <= 14'd1;
                     end
                 4'd2 : 
                     begin
-                    write_data_t <= messge_3;//test  messge_3
+                    write_data_t <= 16'd3;//test  messge_3
                     write_add_t <= 14'd2;
                     end
                 4'd3 : 

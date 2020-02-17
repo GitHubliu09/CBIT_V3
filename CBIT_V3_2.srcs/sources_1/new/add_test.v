@@ -67,7 +67,7 @@ begin
         WAIT:
         begin
             add_t <= 15'd0;
-            if(cnt == 12'd1000)
+            if(cnt == 12'd400)
             begin
                 cnt <= 12'd0;
                 if(num == 8'd250) // test /////////// test

@@ -42,8 +42,8 @@ parameter IDLE_D = 3'b001;
 parameter WAIT_D = 3'b010;
 parameter START = 3'b100;
 
-parameter delay_time = 8'd50;//delay time us //124
-parameter acq_num = 13'd512;//colect number 一次回波ADC采集的点数//2440
+parameter delay_time = 8'd35;//delay time us //124
+parameter acq_num = 13'd4000;//colect number 一次回波ADC采集的点数//2440
 
 /**************** control wire **********************/
 reg c_achieve,c_achieve_t,c_achieve_stop;
@@ -222,7 +222,7 @@ begin
         endcase
 end
 
-always@(c_achieve,c_achieve_stop)
+always@(c_achieve,c_achieve_stop,c_once)
 begin
     if(c_achieve)
         c_achieve_t = 1'b1;

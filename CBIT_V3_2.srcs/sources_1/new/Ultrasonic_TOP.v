@@ -56,7 +56,7 @@ wire clk_5p86k;
 wire clk_23p43k;
 wire clk_12m;
 /********************* fire wire *************************/
-wire fire_oe,fire_a,fire_b,fire_c,fire_d;
+wire fire_a,fire_b,fire_c,fire_d;
 ///******************* connect wire **************************/
 wire sendmark,bodymark,oncemark , fire_once , fire_achieve , calculate_once , calculate_achieve , sweep_write_en , we , change_message , stop_message , send_m2;
 wire [7:0]sweep_num;
@@ -64,6 +64,7 @@ wire [13:0]wadd ;
 wire sweep_add;
 wire [15:0]data_time , data_peak , sweep_data;//到时、幅值、扫描数据
 wire [2:0]send_cmd;
+wire clk_adc_sample;
 /******************** state wire ***************************/
 wire speed , m5m7_switch;
 wire [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
@@ -80,20 +81,18 @@ wire test_edib,test_count,test_adc,test_adc2;
 //assign uart_tx = oncemark;
 /********************** connect between modules***************************************/
 assign clk_24m = CLK24M;
-assign CLK60M = CLK20M;
 //assign fire_a = collectmark;
 //assign fire_b = bodymark;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
+/************************* control wire ***************************/
+assign clk_adc_sample = CLK20M;
 /************************* test wire ****************************/
 assign test1 = wadd == 13'd100 ? 1'b1:1'b0;
 assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
 assign m7_bzo = m5_bzo;
 assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
-assign oe_15 = 1'b0;
-assign oe_20 = 1'b0;
-assign oe_nj = 1'b1;
 assign gain[0] = test_edib;
 assign gain[1] = bodymark;
 assign gain[2] = test_adc;
@@ -102,7 +101,7 @@ assign gain[4] = 1'b0;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 
-clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2(   ),.clk_out3(CLK24M),.clk_out4(CLK10M),
+clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2( CLK60M ),.clk_out3(CLK24M),.clk_out4(CLK10M),
  .locked(lock)
 );//锁相环产生时钟
 
@@ -181,8 +180,12 @@ fire_all fire_all(
     .bodymark(bodymark),
     .oncemark(oncemark),
 //    .stopmark(stopmark),
+    .collect_achieve(collect_achieve),
+    .now_num(now_num_d),
     
-    .fire_oe(fire_oe),
+    .oe_15(oe_15),
+    .oe_20(oe_20),
+    .oe_nj(oe_nj),
     .fire_a(fire_a),
     .fire_b(fire_b),
     .fire_c(fire_c),
@@ -196,7 +199,7 @@ fire_all fire_all(
 adc_and_caculate adc_and_caculate(
     .CLK20M(CLK20M),
     .CLK60M(CLK60M),
-    .clk_adc_sample(clk_2m),
+    .clk_adc_sample(clk_adc_sample),
     .rst(rst),
 //    .collectmark(collectmark),
     .bodymark(bodymark),
