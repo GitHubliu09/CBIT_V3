@@ -50,8 +50,9 @@ module fire(
     reg [7:0] duration_cnt = 8'd0;
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
-    assign oe_15 = oe_15_t;
-    assign oe_nj = oe_nj_t;
+    assign oe_15 = 1'b0;
+    assign oe_20 = 1'b0;
+    assign oe_nj = 1'b1;
     assign fire_a = fire_t_a;
     assign fire_b = ~fire_t_b;
     assign fire_c = fire_t_d;
@@ -120,7 +121,7 @@ module fire(
                 if(now_num == 8'd250)//发射250次后等待bodymark
                 begin
                         fire_num = 8'd0;
-						next_state = IDLE;
+                        next_state = IDLE;
 //                        next_state = WAITNJ;
                 end
                 else next_state = WAITO;//等待齿牙信号进行下一次发射

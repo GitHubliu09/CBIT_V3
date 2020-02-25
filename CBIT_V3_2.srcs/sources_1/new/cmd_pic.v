@@ -110,7 +110,7 @@ add_decode add_decode(
     .read_cmd_add(r_cmd_add),
     .write_message_en( write_message_en),
     .write_message_add(write_message_add),
-    .add_in( add_t),//test  pic_add
+    .add_in( pic_add),//test  pic_add
     .sendmark(sendmark),
     .bodymark(bodymark),
     .oncemark(oncemark),

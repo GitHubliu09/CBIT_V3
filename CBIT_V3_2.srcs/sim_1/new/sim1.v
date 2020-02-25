@@ -35,7 +35,7 @@ initial test1 = 1'b0;
 
 initial #200 bodymark = 1'b1;
 initial #202 bodymark = 1'b0;
-always #5 clk = ~clk;
+always #7 clk = ~clk;
 always
 begin
     #1 oncemark = 1'b0;

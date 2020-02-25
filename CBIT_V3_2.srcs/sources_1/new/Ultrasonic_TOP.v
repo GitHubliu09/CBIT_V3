@@ -76,6 +76,7 @@ wire [1:0]state;
 reg test_reg = 1'b0;
 wire collect_achieve;
 wire test_edib,test_count,test_adc,test_adc2;
+reg testtest;
 /******************* test output ********************************/
 //assign uart_rx = bodymark;
 //assign uart_tx = oncemark;
@@ -97,7 +98,7 @@ assign gain[0] = test_edib;
 assign gain[1] = bodymark;
 assign gain[2] = test_adc;
 assign gain[3] = test_adc2;
-assign gain[4] = 1'b0;
+assign gain[4] = clk_1m;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 
