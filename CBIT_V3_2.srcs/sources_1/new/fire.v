@@ -44,7 +44,7 @@ module fire(
     parameter FIREDONE = 6'b010000;
     parameter WAITNJ = 6'b100000;
     
-    reg[7:0] fire_num = 8'd0 ;//计数发射个数
+  reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
     parameter pulse_cnt_num = 8'd2;//=5 -> 发射4次
     reg [7:0] duration_cnt = 8'd0;
@@ -76,7 +76,7 @@ module fire(
     begin
         next_state = state;
         
-//        if(bodymark)      //之后需要
+//        if(bodymark)      //涔嬪悗闇?瑕?
 //            fire_num = 8'd0;
         case(state)
             IDLE:
@@ -94,8 +94,9 @@ module fire(
                 if(bodymark)
                     next_state = WAITO;
             end
-            WAITO:                              //等待齿牙信号
+            WAITO:                              //绛夊緟榻跨墮淇″彿
             begin
+                nj_done <= 1'b0;
                 if(oncemark)
                 begin
                     oe_15_t = 1'b1;
@@ -118,13 +119,13 @@ module fire(
             end
             FIREDONE:
             begin
-                if(now_num == 8'd250)//发射250次后等待bodymark
+                if(now_num == 8'd250)//鍙戝皠250娆″悗绛夊緟bodymark
                 begin
                         fire_num = 8'd0;
-                        next_state = IDLE;
-//                        next_state = WAITNJ;
+//                        next_state = IDLE;
+                        next_state = WAITNJ;
                 end
-                else next_state = WAITO;//等待齿牙信号进行下一次发射
+                else next_state = WAITO;//绛夊緟榻跨墮淇″彿杩涜涓嬩竴娆″彂灏?
                 start_fire = 1'b0;
             end
             WAITNJ:
@@ -190,7 +191,7 @@ module fire(
              end
              else
              begin
-                    if(pulse_cnt == pulse_cnt_num)  //发射次数到了
+                    if(pulse_cnt == pulse_cnt_num)   //发射次数到了
                     begin
                             fire_t_a <= 1'b0;
                             fire_t_b <= 1'b0;
@@ -209,7 +210,7 @@ module fire(
                                   fire_t_d <= (duration_cnt <= 8'd39)?1'b1:1'b0;
                            end
                     end
-                    else  //这个else进不来
+                    else  //杩欎釜else杩涗笉鏉?
                     begin
                             if(duration_cnt == 8'd99)
                             begin
@@ -219,7 +220,7 @@ module fire(
                              else
                              begin
                                     duration_cnt <= duration_cnt + 1'b1;
-                                    fire_t_a <= (duration_cnt <= 8'd39)?1'b1:1'b0;//产生激发换能器的方波
+                                    fire_t_a <= (duration_cnt <= 8'd39)?1'b1:1'b0;//浜х敓婵?鍙戞崲鑳藉櫒鐨勬柟娉?
                                     fire_t_b <= ((duration_cnt >= 8'd40)&&(duration_cnt <=8'd79) )?1'b1:1'b0;
                              end
                     end

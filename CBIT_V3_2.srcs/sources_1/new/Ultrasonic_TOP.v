@@ -87,7 +87,7 @@ assign clk_24m = CLK24M;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
 /************************* control wire ***************************/
-assign clk_adc_sample = CLK20M;
+assign clk_adc_sample = CLK10M;
 /************************* test wire ****************************/
 assign test1 = wadd == 13'd100 ? 1'b1:1'b0;
 assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
@@ -104,7 +104,7 @@ assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2( CLK60M ),.clk_out3(CLK24M),.clk_out4(CLK10M),
  .locked(lock)
-);//锁相环产生时钟
+);//閿佺浉鐜骇鐢熸椂閽?
 
 clk_div clk_div(
     .clock_24m(clk_24m),
@@ -119,7 +119,7 @@ clk_div clk_div(
     .clk_750k(clk_750k),
     .clk_23p43k(clk_23p43k),
     .clk_12m(clk_12m)
-);//分频
+);//鍒嗛
 
 cmd_test cmd_test(
     .clk(clk_41p667k ),
@@ -133,7 +133,7 @@ cmd_pic cmd_pic(
     .CLK60M(CLK60M),
     .CLK20M(CLK20M),
     .rst(rst),
-    .cmd_in(~m2_cmd_in),//test   ~m2_cmd_in  //因为电路图设计原因，需要将输入信号反向输入到该模块中。  //此时输入电平正好与规定电平相反
+    .cmd_in(~m2_cmd_in),//test   ~m2_cmd_in  //因为电路图设计原因，需要将输入信号反向输入到该模块中。  //此时输入电平正好与规定电平相反  //姝ゆ椂杈撳叆鐢靛钩姝ｅソ涓庤瀹氱數骞崇浉鍙?
     .pic_add(pma),
     .stop_message(stop_message),
     
@@ -212,6 +212,7 @@ adc_and_caculate adc_and_caculate(
     .adc_data(adc_data),
     .sweep_num(sweep_num),
     
+    .select( ),
     .adc_shdn(adc_shdn),
     .adc_oe(adc_oe),
     .adc_clk_ttl(adc_clk_ttl),

@@ -20,6 +20,7 @@ module adc_and_caculate(
     input [13:0]adc_data,
     input [7:0]sweep_num,
     
+    output [1:0]select,//00->GND , 01->1.5  , 10->2.0 , 11->mud
     output adc_shdn,
     output adc_oe,
     output adc_clk_ttl,
@@ -41,10 +42,11 @@ module adc_and_caculate(
     );
 
 /******************* inside connect wire ************************************************/
-wire we_un , re_un , collect_once , collect_achieve;
-wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/;
-wire[15:0]data_un , rdata_un;
-wire sweep_write_en_t;
+wire we_un , re_un , collect_once , collect_achieve , nj_w_en;
+wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/ , nj_add;
+wire[15:0]data_un , rdata_un , nj_data;
+wire sweep_write_en_t , nj_doing;
+wire adc_clk_ttl_t;
 /********************* test wire ****************************************************************/
 wire test_collect,test_collect2;
 reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
@@ -88,7 +90,32 @@ begin
     end
 end
 
+assign adc_clk_ttl = nj_doing ? CLK20M : adc_clk_ttl_t;
 
+collect_nj collect_nj(
+    .CLK20M(CLK20M),
+    .rst(rst),
+    .collect_achieve(collect_achieve),
+    .fire_once(fire_once),
+    .adc_data(adc_data),
+    
+    .nj_data(nj_data ),
+    .nj_add(nj_add),
+    .nj_w_en(nj_w_en),
+    .select(select),
+    .nj_doing( nj_doing)
+);
+
+nj_ram nj_ram(
+    .wclk(CLK20M ),
+    .waddr(nj_add ),
+    .din_sync(nj_w_en ),
+    .din(nj_data ),
+    .rclk(  ),
+    .re(  ),
+    .ra(  ),
+    .dout(  )
+);
 
 collect collect(
     .rst(rst),
@@ -97,6 +124,7 @@ collect collect(
 //    .collectmark(collectmark),
     .bodymark(bodymark),
     .fire_once(fire_once),
+    .nj_doing(nj_doing),
     .fire_achieve(fire_achieve),
     .now_num(now_num),
     
@@ -104,7 +132,7 @@ collect collect(
     .adc_data(adc_data),
     .shdn(adc_shdn),//shdn=0,oe=0 -> enalbe ... shdn=1,oe=0 -> nap mode ... shdn=1,oe=1 -> sleep mode
     .oe(adc_oe),// adc IC output enable pin
-    .adc_clk_ttl(adc_clk_ttl),//adc clk
+    .adc_clk_ttl(adc_clk_ttl_t),//adc clk
     .adc_clk_oe(adc_clk_oe),// adc clk enable, =1 -> eanble
     .gain(gain),
     .we_un(we_un ),

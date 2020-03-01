@@ -13,6 +13,7 @@
 //    input collectmark,
     input bodymark,
     input fire_once,
+    input nj_doing,
     input fire_achieve,
     input [7:0]now_num,
     
@@ -43,7 +44,7 @@ parameter WAIT_D = 3'b010;
 parameter START = 3'b100;
 
 parameter delay_time = 8'd35;//delay time us //124
-parameter acq_num = 13'd4000;//colect number 一次回波ADC采集的点数//2440
+parameter acq_num = 13'd2000;//colect number 一次回波ADC采集的点数//2440
 
 /**************** control wire **********************/
 reg c_achieve,c_achieve_t,c_achieve_stop;
@@ -97,6 +98,8 @@ begin
         end
         WAIT_D:
         begin
+            if(nj_doing)//正在采集泥浆波
+                state_d <= IDLE_D;
              if(count_delay == delay_time)
                 begin
                     state_d <= START;

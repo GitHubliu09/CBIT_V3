@@ -4,7 +4,7 @@
 // 处理上位机发来的命令和PIC发来的命令
 //pic单片机 地址线 15位，数据线 8位
 //首先对命令和数据进行译码->在对地址进行译码，并输出读ram的地址和使能->命令和数据的存储和读取
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 module cmd_pic(
@@ -17,7 +17,7 @@ module cmd_pic(
     input [14:0]pic_add,
     input stop_message,
     
-    inout [7:0]pic_data,                //双向数据线
+   inout [7:0]pic_data,                //双向数据线
     
     output int,                          //通过中断通知pic接收到命令
     output sendmark,
@@ -110,7 +110,7 @@ add_decode add_decode(
     .read_cmd_add(r_cmd_add),
     .write_message_en( write_message_en),
     .write_message_add(write_message_add),
-    .add_in( pic_add),//test  pic_add
+    .add_in( add_t),//test  pic_add
     .sendmark(sendmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
