@@ -65,6 +65,7 @@ wire sweep_add;
 wire [15:0]data_time , data_peak , sweep_data;//到时、幅值、扫描数据
 wire [2:0]send_cmd;
 wire clk_adc_sample;
+wire [15:0]nj_data_time;
 /******************** state wire ***************************/
 wire speed , m5m7_switch;
 wire [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
@@ -87,7 +88,7 @@ assign clk_24m = CLK24M;
 //assign fire_c = oncemark;
 //assign fire_d = stopmark;
 /************************* control wire ***************************/
-assign clk_adc_sample = CLK10M;
+
 /************************* test wire ****************************/
 assign test1 = wadd == 13'd100 ? 1'b1:1'b0;
 assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
@@ -95,11 +96,16 @@ assign m7_bzo = m5_bzo;
 assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
 assign gain[0] = test_edib;
-assign gain[1] = bodymark;
+assign gain[1] = sendmark;
 assign gain[2] = test_adc;
 assign gain[3] = test_adc2;
 assign gain[4] = clk_1m;
 assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
+/************************* parameter ***********************************************************/
+parameter delay_time = 8'd100;//delay time us //35//124//
+parameter collect_num = 13'd2000;//colect number 一次回波ADC采集的点数//2440
+parameter extract_num = 8'd3; //抽取位数
+assign clk_adc_sample = CLK20M;
 
 
 clk_wiz_0 pll (.reset(0), .clk_in1(clk), .clk_out1(CLK20M), .clk_out2( CLK60M ),.clk_out3(CLK24M),.clk_out4(CLK10M),
@@ -136,6 +142,7 @@ cmd_pic cmd_pic(
     .cmd_in(~m2_cmd_in),//test   ~m2_cmd_in  //因为电路图设计原因，需要将输入信号反向输入到该模块中。  //此时输入电平正好与规定电平相反  //姝ゆ椂杈撳叆鐢靛钩姝ｅソ涓庤瀹氱數骞崇浉鍙?
     .pic_add(pma),
     .stop_message(stop_message),
+    .nj_data_time(nj_data_time),
     
     .pic_data(pmd),
     
@@ -211,6 +218,8 @@ adc_and_caculate adc_and_caculate(
     .adc_ovr(adc_ovr),
     .adc_data(adc_data),
     .sweep_num(sweep_num),
+    .collect_num(collect_num),
+    .delay_time(delay_time),
     
     .select( ),
     .adc_shdn(adc_shdn),
@@ -225,6 +234,7 @@ adc_and_caculate adc_and_caculate(
     .sweep_write_en( sweep_write_en),
     .sweep_add(sweep_add ),
     .sweep_data( sweep_data),
+    .nj_data_time(nj_data_time),
 //    .calculate_once(calculate_once),
     .collect_achieve(collect_achieve),
     .calculate_achieve(calculate_achieve),
@@ -276,6 +286,7 @@ edib edib(
     .m5m7_switch(m5m7_switch),
     .send_m2(send_m2),
     .send_cmd(send_cmd),
+    .extract_num(extract_num),
     
     .stop_message(stop_message),
     .m5_bzo(m5_bzo),

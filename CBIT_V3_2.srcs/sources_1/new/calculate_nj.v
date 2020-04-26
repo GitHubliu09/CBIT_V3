@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module calculate(
+module calculate_nj(
     input clk,
     input clk_20m,
     input rst,
@@ -14,17 +14,20 @@ module calculate(
     input [13:0]collect_num,
     input bodymark,
     input fire_once,
+    input [7:0]now_num,
     input collect_once,
-    input collect_achieve,
+    input collect_once_nj,
+    input collect_achieve_nj,
     input [7:0]sweep_num,//*********要上传的波形的位置
-    output  reg sweep_en,//  *********************上传波形使能
+    output  sweep_en,//  *********************上传波形使能
     output  we_time,//(we_out)
     output reg [13:0]add_time,//(wadd_out)
     output [13:0]add_peak,
     output reg [15:0]data_time,
     output reg [15:0]data_peak,
 //    output calculate_once,
-    output calculate_achieve
+    output calculate_achieve,
+    output upload_nj
     );
     
 reg c_ach;
@@ -32,6 +35,8 @@ reg cl_t_ach , cl_ach1 , cl_ach2 ,cl_ach3,cl_ach4,cl_ach5,cl_ach6;
 reg c_o_t,c_o1,c_o2,c_o3,c_o4,c_o5,c_o6;
 reg we_peak;
 reg we_t1,we_t2;
+reg sweep_en_t;
+reg upload_nj;
 
 reg [15:0]data_r_t;
 wire [15:0]data_time_t;
@@ -60,13 +65,14 @@ parameter CAL = 3'b100;
 parameter WRITE = 3'b101;
 parameter DONE = 3'b110;
 
-parameter delay_time = 16'd20;//delay time 0.05us (20MHz)
+parameter delay_time = 16'd0;//delay time 0.05us (20MHz)
 
 
 assign acq_cnt = add_r;
 assign add_peak = add_cnt;
 assign calculate_achieve = cl_ach1 | cl_ach2 | cl_ach3 | cl_ach4 | cl_ach5 | cl_ach6;
 assign we_time = we_t1 | we_t2;
+assign sweep_en = now_num == 8'd3 ? sweep_en_t : 1'b0;
 
 always@(negedge clk , posedge rst)
 begin
@@ -110,36 +116,51 @@ always@(posedge clk, posedge rst)
 begin
     if(rst)
     begin
-        sweep_en <= 1'b0;
+        sweep_en_t <= 1'b0;
         sweep_cnt <= 9'd0;
         sweep_change <= 1'b0;
-        sweep_t <= 8'd249;
+        upload_nj <= 1'b0;
     end
     else 
     begin
-        sweep_t <= 8'd249 - sweep_num1;
         if(sweep_num1 != sweep_num2)
             sweep_change <= 1'b1;
         
-        if(cl_ach1)//calculate_achieve
+        if(calculate_achieve)
         begin
+        /*************** test **************************************/
+         if(sweep_num1 == 8'd0)
+                begin
+                    upload_nj <= 1'b1;
+                    sweep_cnt <= 9'd3;
+                end
+                else
+                begin
+                    upload_nj <= 1'b0;
+                    sweep_cnt <= 9'd0;
+                end
+        /*************** test **************************************/
             if(sweep_change)
             begin
-                sweep_cnt <= sweep_num1;
-                sweep_change <= 1'b0;
+                if(sweep_num1 == 8'd0)
+                begin
+                    upload_nj <= 1'b1;
+                    sweep_cnt <= 9'd3;
+                end
+                else
+                begin
+                    upload_nj <= 1'b0;
+                    sweep_cnt <= 9'd0;
+                end
             end
-            else if(sweep_cnt > sweep_t)
-                sweep_cnt <= sweep_cnt + sweep_num1 - 8'd250;
-                //波形是从0->249组，由于fpga是并行执行的结构 不能让程序中上传波形的位置计数有大于249的时候 ，因此比较的数应该向上面这样设计
-            else
-                sweep_cnt <= sweep_cnt + sweep_num1;
+           
         end
         
         
         if((add_cnt == sweep_cnt) && (acq_cnt == 14'd1 || acq_cnt == 14'd2 ))
-            sweep_en <= 1'b1;
+            sweep_en_t <= 1'b1;
         else
-            sweep_en <= 1'b0;
+            sweep_en_t <= 1'b0;
     end
 end
 
@@ -175,7 +196,7 @@ begin
 //            en_r <= 1'b0;
             we_peak <= 1'b0;
             cl_t_ach <= 1'b0;
-            add_cnt <= 14'd0;
+            add_cnt <= 14'd3;
 //            if(fire_once)
 //            begin
                 state <= WAIT;
@@ -192,13 +213,13 @@ begin
         
         WAIT:
         begin
-            if(collect_once == 1 && collect_achieve == 1)
+            if(collect_once_nj == 1 && collect_achieve_nj == 1)
             begin
                 start_cal <= 1'b1;
                 c_ach <= 1'b1;
                 state <= CAL;
             end
-            else if(collect_once == 1)
+            else if(collect_once == 1 && now_num == 8'd3)
             begin
                 start_cal <= 1'b1;
                 state <= CAL;
@@ -257,7 +278,7 @@ begin
             else
             begin
                 state <= STARTONCE;
-                add_cnt <= add_cnt + 1'b1;
+                add_cnt <= 14'd3;
             end
         end
         
@@ -304,7 +325,7 @@ begin
 end
 
 ////特征函数：绝对值    
-//lat_w_interface lat_w_interface(
+//lat_w_interface_2t lat_w_interface_2t(
 //	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
 //	.collect_once( start_cal),//使能信号,1个周期即可
 //	.clk_60m(clk),//时钟20MHz 工作周期50ns
@@ -316,12 +337,11 @@ end
 //); 
 
 //特征函数：第二种
-lat_cf2 lat_cf2(
+lat_cf2_2t lat_cf2_2t(
 	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
 	.collect_once( start_cal),//使能信号,1个周期即可
 	.clk_60m(clk),//时钟20MHz 工作周期50ns
 	.rst(rst),
-	.collect_num(collect_num),//collect number
 	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
 	.add_r( add_r),//读ram地址
 	.en_read( en_read),//读ram使能
@@ -335,7 +355,7 @@ endmodule
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module calculate(
+module calculate_nj(
     input clk,
     input clk_20m,
     input rst,
@@ -345,17 +365,20 @@ module calculate(
     input [13:0]collect_num,
     input bodymark,
     input fire_once,
+    input [7:0]now_num,
     input collect_once,
-    input collect_achieve,
+    input collect_once_nj,
+    input collect_achieve_nj,
     input [7:0]sweep_num,//*********要上传的波形的位置
-    output  reg sweep_en,//  *********************上传波形使能
+    output  sweep_en,//  *********************上传波形使能
     output  we_time,//(we_out)
     output reg [13:0]add_time,//(wadd_out)
     output [13:0]add_peak,
     output reg [15:0]data_time,
     output reg [15:0]data_peak,
 //    output calculate_once,
-    output calculate_achieve
+    output calculate_achieve,
+    output upload_nj
     );
     
 reg c_ach;
@@ -363,6 +386,8 @@ reg cl_t_ach , cl_ach1 , cl_ach2 ,cl_ach3,cl_ach4,cl_ach5,cl_ach6;
 reg c_o_t,c_o1,c_o2,c_o3,c_o4,c_o5,c_o6;
 reg we_peak;
 reg we_t1,we_t2;
+reg sweep_en_t;
+reg upload_nj;
 
 reg [15:0]data_r_t;
 wire [15:0]data_time_t;
@@ -391,13 +416,14 @@ parameter CAL = 3'b100;
 parameter WRITE = 3'b101;
 parameter DONE = 3'b110;
 
-parameter delay_time = 16'd20;//delay time 0.05us (20MHz)
+parameter delay_time = 16'd0;//delay time 0.05us (20MHz)
 
 
 assign acq_cnt = add_r;
 assign add_peak = add_cnt;
 assign calculate_achieve = cl_ach1 | cl_ach2 | cl_ach3 | cl_ach4 | cl_ach5 | cl_ach6;
 assign we_time = we_t1 | we_t2;
+assign sweep_en = now_num == 8'd3 ? sweep_en_t : 1'b0;
 
 always@(negedge clk , posedge rst)
 begin
@@ -441,36 +467,51 @@ always@(posedge clk, posedge rst)
 begin
     if(rst)
     begin
-        sweep_en <= 1'b0;
+        sweep_en_t <= 1'b0;
         sweep_cnt <= 9'd0;
         sweep_change <= 1'b0;
-        sweep_t <= 8'd249;
+        upload_nj <= 1'b0;
     end
     else 
     begin
-        sweep_t <= 8'd249 - sweep_num1;
         if(sweep_num1 != sweep_num2)
             sweep_change <= 1'b1;
         
-        if(cl_ach1)//calculate_achieve
+        if(calculate_achieve)
         begin
+        /*************** test **************************************/
+         if(sweep_num1 == 8'd0)
+                begin
+                    upload_nj <= 1'b1;
+                    sweep_cnt <= 9'd3;
+                end
+                else
+                begin
+                    upload_nj <= 1'b0;
+                    sweep_cnt <= 9'd0;
+                end
+        /*************** test **************************************/
             if(sweep_change)
             begin
-                sweep_cnt <= sweep_num1;
-                sweep_change <= 1'b0;
+                if(sweep_num1 == 8'd0)
+                begin
+                    upload_nj <= 1'b1;
+                    sweep_cnt <= 9'd3;
+                end
+                else
+                begin
+                    upload_nj <= 1'b0;
+                    sweep_cnt <= 9'd0;
+                end
             end
-            else if(sweep_cnt > sweep_t)
-                sweep_cnt <= sweep_cnt + sweep_num1 - 8'd250;
-                //波形是从0->249组，由于fpga是并行执行的结构 不能让程序中上传波形的位置计数有大于249的时候 ，因此比较的数应该向上面这样设计
-            else
-                sweep_cnt <= sweep_cnt + sweep_num1;
+           
         end
         
         
         if((add_cnt == sweep_cnt) && (acq_cnt == 14'd1 || acq_cnt == 14'd2 ))
-            sweep_en <= 1'b1;
+            sweep_en_t <= 1'b1;
         else
-            sweep_en <= 1'b0;
+            sweep_en_t <= 1'b0;
     end
 end
 
@@ -506,7 +547,7 @@ begin
 //            en_r <= 1'b0;
             we_peak <= 1'b0;
             cl_t_ach <= 1'b0;
-            add_cnt <= 14'd0;
+            add_cnt <= 14'd3;
 //            if(fire_once)
 //            begin
                 state <= WAIT;
@@ -523,13 +564,13 @@ begin
         
         WAIT:
         begin
-            if(collect_once == 1 && collect_achieve == 1)
+            if(collect_once_nj == 1 && collect_achieve_nj == 1)
             begin
                 start_cal <= 1'b1;
                 c_ach <= 1'b1;
                 state <= CAL;
             end
-            else if(collect_once == 1)
+            else if(collect_once == 1 && now_num == 8'd3)
             begin
                 start_cal <= 1'b1;
                 state <= CAL;
@@ -588,7 +629,7 @@ begin
             else
             begin
                 state <= STARTONCE;
-                add_cnt <= add_cnt + 1'b1;
+                add_cnt <= 14'd3;
             end
         end
         
@@ -635,7 +676,7 @@ begin
 end
 
 ////特征函数：绝对值    
-//lat_w_interface lat_w_interface(
+//lat_w_interface_2t lat_w_interface_2t(
 //	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
 //	.collect_once( start_cal),//使能信号,1个周期即可
 //	.clk_60m(clk),//时钟20MHz 工作周期50ns
@@ -647,12 +688,11 @@ end
 //); 
 
 //特征函数：第二种
-lat_cf2 lat_cf2(
+lat_cf2_2t lat_cf2_2t(
 	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
 	.collect_once( start_cal),//使能信号,1个周期即可
 	.clk_60m(clk),//时钟20MHz 工作周期50ns
 	.rst(rst),
-	.collect_num(collect_num),//collect number
 	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
 	.add_r( add_r),//读ram地址
 	.en_read( en_read),//读ram使能

@@ -7,12 +7,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module lat_cf2(
+module lat_cf2_2t(
 	input	[15:0]	data_r,//adc采集的数据（偏移二进制码）从ram里面取出来
 	input		collect_once,//使能信号,1个周期即可
 	input		clk_60m,//时钟60MHz 工作周期16.66ns
 	input		rst,
-	input [13:0]collect_num,//collect number
 	
 	output	[13:0]	data_time,// data_time = data_arrive + DELAY_TIME
 	output	[15:0]	add_r,//读ram地址
@@ -56,9 +55,8 @@ wire				div_flag;
 wire		[79:0]		m_axis_dout_tdata;
 
 assign add_r = r_addr;
-assign	en_read = (add_r <= collect_num)?cal_en : 1'd0;//计算开始使能信号作为读ram使能
-assign	data_time = mcount + DELAY_TIME ; // - 6'd36-2'd3
-/*计算完特征函数后算法延迟 : 读ram1个周期，数据变成补码1个周期，
+assign	en_read = (add_r <= 12'd4000)?cal_en : 1'd0;//计算开始使能信号作为读ram使能
+assign	data_time = mcount + DELAY_TIME - 6'd36-2'd3;/*计算完特征函数后算法延迟 : 读ram1个周期，数据变成补码1个周期，
 获得另一个用于计算的数据1个周期，数据平方1个周期，计算cf1个周期，cf 移入窗内1个周期 ，窗内求和1个周期，
 乘法1个周期，除法28个周期，取出商加余数1个周期，最后判断加输出不占延迟。
 一共37个周期。
@@ -92,7 +90,7 @@ always @(posedge clk_60m or posedge rst)
 always @(posedge clk_60m or posedge rst)
 	if(rst == 1'b1)
 		CAL_END <= 1'b0;
-	else if(data_conuter == collect_num + 6'd48)//数据长度加上延时周期
+	else if(data_conuter == 12'd3999 + 6'd48)//数据长度加上延时周期
 		CAL_END <= 1'b1;
 	else
 		CAL_END <= 1'b0;
@@ -301,14 +299,14 @@ begin
 		
 	end
 	else begin
-		LTA_1 <= LTA*6'd3;
-		STA_1 <= STA*6'd25;
+		LTA_1 <= LTA*6'd3;//3  //  25
+		STA_1 <= STA*8'd25;
 	end
 end
 
 
 //除法，计算长短窗的比值
-div_36by36 div2 (
+div_gen_1 div_gen_1 (
   .aclk(clk_60m),                                      
   .s_axis_divisor_tvalid(cal_en ),    
   .s_axis_divisor_tdata(LTA_1),      

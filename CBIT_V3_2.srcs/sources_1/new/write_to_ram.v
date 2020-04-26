@@ -35,6 +35,7 @@ module write_to_ram(
     input [15:0]message9,
     input [15:0]message10,
     input [15:0]message11,
+    input [7:0]extract_num,
     
     output write_ram_done,
     output reg stop_message,
@@ -69,7 +70,7 @@ reg [15:0]messge_1 , messge_2 ,messge_3 ,messge_4 ,messge_5 ,messge_6 ,messge_7 
 /*************** test wire ****************************************/
 reg [15:0]sweep_data_test;
 wire test;
-assign test = (write_add_t == 14'd139) ? 1'b1 : 1'b0;
+assign test = ( sweep_data == 16'd0) ? 1'b1 : 1'b0;
 
 reg [7:0]state,next_state;
 parameter IDLE = 8'b0000_0001;
@@ -81,7 +82,6 @@ parameter TIME = 8'b0010_0000;
 parameter PEAK = 8'b0100_0000;
 parameter DONE = 8'b1000_0000;
 
-parameter extract_num = 8'd1; //抽取位数
 
 assign write_add = write_add_t ;//实际用时候，上传参数发现整体向前移一位，所以每一个地址 +1
 assign write_data = write_data_t;
@@ -433,7 +433,7 @@ begin
             4'd3 : if( w_peak)
                     begin
                     write_add_t <= peak_cnt;
-                    write_data_t <= peak_reg;// peak_reg  test
+                    write_data_t <= 16'd0;// peak_reg  test
                     write_en <= 1'b1;
                     peak_cnt <= peak_cnt + 1'b1;
                     end
@@ -441,7 +441,7 @@ begin
             4'd5 : if(calculate_achieve_t)
                     begin
                     write_add_t <= peak_cnt;
-                    write_data_t <=  {peak_t_reg , 8'b0000_0000};//  {peak_t_reg , 8'b0000_0000}  test
+                    write_data_t <=  {8'd0 , 8'b0000_0000};//  {peak_t_reg , 8'b0000_0000}  test
                     write_en <= 1'b1;
                     end
             
