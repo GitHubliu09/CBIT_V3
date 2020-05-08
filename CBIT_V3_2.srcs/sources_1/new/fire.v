@@ -22,7 +22,8 @@ module fire(
     output fire_once,
     output fire_achieve,
     output [2:0]pulse_num,
-    output error_fire
+    output error_fire,
+    output test_fire
     );
     
     
@@ -35,14 +36,17 @@ module fire(
     reg    fire_t_once1 ,fire_t_once2,fire_t_ach1 ,fire_t_ach2 ;
     reg oe_15_t,oe_nj_t;
     reg nj_done;
+    reg collect_achieve_t;
     
-    reg[5:0] state = 6'b00001 , next_state = 6'b00001;
-    parameter IDLE = 6'b000001;
-    parameter WAITB = 6'b000010;
-    parameter WAITO = 6'b000100;
-    parameter FIRE = 6'b001000;
-    parameter FIREDONE = 6'b010000;
-    parameter WAITNJ = 6'b100000;
+    reg[7:0] state = 8'b0000001 , next_state = 8'b0000001;
+    parameter IDLE = 8'b00000001;
+    parameter WAITB = 8'b00000010;
+    parameter WAITO = 8'b00000100;
+    parameter FIRE = 8'b00001000;
+    parameter FIREDONE = 8'b00010000;
+    parameter WAITNJ = 8'b00100000;
+    parameter FIRENJ = 8'b01000000;
+    parameter FIRENJDONE = 8'b10000000;
     
   reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
@@ -51,8 +55,8 @@ module fire(
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
     assign oe_15 = 1'b0;
-    assign oe_20 = 1'b0;
-    assign oe_nj = 1'b1;
+    assign oe_20 = oe_15_t;//oe_nj_t
+    assign oe_nj = oe_nj_t;//oe_15_t
     assign fire_a = fire_t_a;
     assign fire_b = ~fire_t_b;
     assign fire_c = fire_t_d;
@@ -63,6 +67,8 @@ module fire(
     
     assign error_fire = fire_t_ach;
     
+    assign test_fire = oe_15_t;
+    
     
     always@(negedge clk_20m or posedge rst)
     begin
@@ -72,7 +78,15 @@ module fire(
             state <= next_state;
     end
     
-    always@( state ,bodymark,oncemark , fire_t_once ,collect_achieve)
+    always@(posedge clk_20m or posedge rst)
+    begin
+        if(rst)
+            collect_achieve_t <= 1'b0;
+        else
+            collect_achieve_t <= collect_achieve;
+    end
+    
+    always@( state ,bodymark,oncemark , fire_t_once ,collect_achieve_t)
     begin
         next_state = state;
         
@@ -96,6 +110,8 @@ module fire(
             end
             WAITO:                              //绛夊緟榻跨墮淇″彿
             begin
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
                 nj_done <= 1'b0;
                 if(oncemark)
                 begin
@@ -107,6 +123,8 @@ module fire(
             end
             FIRE:
             begin
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
                 if(fire_t_once)
                 begin
                     next_state = FIREDONE;
@@ -119,34 +137,46 @@ module fire(
             end
             FIREDONE:
             begin
-                if(now_num == 8'd250)//鍙戝皠250娆″悗绛夊緟bodymark
+                if(now_num == 8'd250)
                 begin
                         fire_num = 8'd0;
-                        next_state = IDLE;//无测试泥浆
-//                        next_state = WAITNJ;//代表有测试泥浆
+//                        next_state = IDLE;//无测试泥浆
+                        next_state = WAITNJ;//代表有测试泥浆
                 end
-                else next_state = WAITO;//绛夊緟榻跨墮淇″彿杩涜涓嬩竴娆″彂灏?
+                else next_state = WAITO;
                 start_fire = 1'b0;
             end
             WAITNJ:
             begin
                 nj_done = 1'b1;
                 start_fire = 1'b0;
-                if(collect_achieve)
+                oe_15_t = 1'b0;
+                oe_nj_t = 1'b1;
+                if(collect_achieve_t)
                 begin
-                    oe_15_t = 1'b0;
-                    oe_nj_t = 1'b1;
-                    next_state = FIRE;
+                    next_state = FIRENJ;
                     fire_num = 8'd0;
                     fire_t_ach = 1'b0;
                 end
-                else if(oncemark)
+            end
+            FIRENJ:
+            begin
+                nj_done = 1'b1;
+                oe_15_t = 1'b0;
+                oe_nj_t = 1'b1;
+                if(fire_t_once)
                 begin
-                    oe_15_t = 1'b1;
-                    oe_nj_t = 1'b0;
-                    next_state = FIRE;
-                    fire_num = fire_num + 1'b1;
+                    next_state = FIRENJDONE;
                 end
+                start_fire = 1'b1;
+            end
+            FIRENJDONE:
+            begin
+                nj_done = 1'b1;
+                next_state = WAITO;
+                start_fire = 1'b0;
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
             end
             default:
             begin
@@ -277,7 +307,8 @@ module fire(
     output fire_once,
     output fire_achieve,
     output [2:0]pulse_num,
-    output error_fire
+    output error_fire,
+    output test_fire
     );
     
     
@@ -290,14 +321,17 @@ module fire(
     reg    fire_t_once1 ,fire_t_once2,fire_t_ach1 ,fire_t_ach2 ;
     reg oe_15_t,oe_nj_t;
     reg nj_done;
+    reg collect_achieve_t;
     
-    reg[5:0] state = 6'b00001 , next_state = 6'b00001;
-    parameter IDLE = 6'b000001;
-    parameter WAITB = 6'b000010;
-    parameter WAITO = 6'b000100;
-    parameter FIRE = 6'b001000;
-    parameter FIREDONE = 6'b010000;
-    parameter WAITNJ = 6'b100000;
+    reg[7:0] state = 8'b0000001 , next_state = 8'b0000001;
+    parameter IDLE = 8'b00000001;
+    parameter WAITB = 8'b00000010;
+    parameter WAITO = 8'b00000100;
+    parameter FIRE = 8'b00001000;
+    parameter FIREDONE = 8'b00010000;
+    parameter WAITNJ = 8'b00100000;
+    parameter FIRENJ = 8'b01000000;
+    parameter FIRENJDONE = 8'b10000000;
     
   reg[7:0] fire_num = 8'd0 ;//计数发射个数
     reg [7:0] pulse_cnt = 8'd0;  //用于计数单个发射周期内的变量
@@ -306,8 +340,8 @@ module fire(
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
     assign oe_15 = 1'b0;
-    assign oe_20 = 1'b0;
-    assign oe_nj = 1'b1;
+    assign oe_20 = oe_15_t;//oe_nj_t
+    assign oe_nj = oe_nj_t;//oe_15_t
     assign fire_a = fire_t_a;
     assign fire_b = ~fire_t_b;
     assign fire_c = fire_t_d;
@@ -318,6 +352,8 @@ module fire(
     
     assign error_fire = fire_t_ach;
     
+    assign test_fire = oe_15_t;
+    
     
     always@(negedge clk_20m or posedge rst)
     begin
@@ -327,7 +363,15 @@ module fire(
             state <= next_state;
     end
     
-    always@( state ,bodymark,oncemark , fire_t_once ,collect_achieve)
+    always@(posedge clk_20m or posedge rst)
+    begin
+        if(rst)
+            collect_achieve_t <= 1'b0;
+        else
+            collect_achieve_t <= collect_achieve;
+    end
+    
+    always@( state ,bodymark,oncemark , fire_t_once ,collect_achieve_t)
     begin
         next_state = state;
         
@@ -351,6 +395,8 @@ module fire(
             end
             WAITO:                              //绛夊緟榻跨墮淇″彿
             begin
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
                 nj_done <= 1'b0;
                 if(oncemark)
                 begin
@@ -362,6 +408,8 @@ module fire(
             end
             FIRE:
             begin
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
                 if(fire_t_once)
                 begin
                     next_state = FIREDONE;
@@ -374,34 +422,46 @@ module fire(
             end
             FIREDONE:
             begin
-                if(now_num == 8'd250)//鍙戝皠250娆″悗绛夊緟bodymark
+                if(now_num == 8'd250)
                 begin
                         fire_num = 8'd0;
-                        next_state = IDLE;//无测试泥浆
-//                        next_state = WAITNJ;//代表有测试泥浆
+//                        next_state = IDLE;//无测试泥浆
+                        next_state = WAITNJ;//代表有测试泥浆
                 end
-                else next_state = WAITO;//绛夊緟榻跨墮淇″彿杩涜涓嬩竴娆″彂灏?
+                else next_state = WAITO;
                 start_fire = 1'b0;
             end
             WAITNJ:
             begin
                 nj_done = 1'b1;
                 start_fire = 1'b0;
-                if(collect_achieve)
+                oe_15_t = 1'b0;
+                oe_nj_t = 1'b1;
+                if(collect_achieve_t)
                 begin
-                    oe_15_t = 1'b0;
-                    oe_nj_t = 1'b1;
-                    next_state = FIRE;
+                    next_state = FIRENJ;
                     fire_num = 8'd0;
                     fire_t_ach = 1'b0;
                 end
-                else if(oncemark)
+            end
+            FIRENJ:
+            begin
+                nj_done = 1'b1;
+                oe_15_t = 1'b0;
+                oe_nj_t = 1'b1;
+                if(fire_t_once)
                 begin
-                    oe_15_t = 1'b1;
-                    oe_nj_t = 1'b0;
-                    next_state = FIRE;
-                    fire_num = fire_num + 1'b1;
+                    next_state = FIRENJDONE;
                 end
+                start_fire = 1'b1;
+            end
+            FIRENJDONE:
+            begin
+                nj_done = 1'b1;
+                next_state = WAITO;
+                start_fire = 1'b0;
+                oe_15_t = 1'b1;
+                oe_nj_t = 1'b0;
             end
             default:
             begin

@@ -25,7 +25,8 @@ module fire_all(
     output fire_once,
     output fire_achieve,
     output error_fire,
-    output [1:0]state
+    output [1:0]state,
+    output test_fire
     );
 
 
@@ -50,7 +51,8 @@ fire fire(
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
 //    .pulse_num(pulse_num),
-    .error_fire(error_fire)
+    .error_fire(error_fire),
+    .test_fire(test_fire)
 
 );
 
@@ -83,7 +85,8 @@ module fire_all(
     output fire_once,
     output fire_achieve,
     output error_fire,
-    output [1:0]state
+    output [1:0]state,
+    output test_fire
     );
 
 
@@ -108,7 +111,8 @@ fire fire(
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
 //    .pulse_num(pulse_num),
-    .error_fire(error_fire)
+    .error_fire(error_fire),
+    .test_fire(test_fire)
 
 );
 

@@ -30,7 +30,7 @@ parameter sending_data=3'b100;
 	input [15:0] q5;//data from RAM
 	input rden5;//read enable
 	input clock_32x57;//5.86KHz
-	input [9:0] address5;//read adress of RAM
+	input [13:0] address5;//read adress of RAM
 	output m5_bzo;//
 	output m5_boo;//
 	output low_flag;// I have send low 512Bytes , you can write in
@@ -233,9 +233,9 @@ always @(negedge  clock_32x57,negedge reset_ )
           low_flag <= 1'b0;
           high_flag <= 1'b0;
           end
-     else if((address5==10'b0111111111)&&(rden5==1'b1))//address5=511,?:???RAM???512???????,?DSP????RAM??512???
+     else if((address5==14'b00000111111111)&&(rden5==1'b1))//address5=511,?:???RAM???512???????,?DSP????RAM??512???
           low_flag <= 1'b1;   
-     else if((address5==10'b1111111110)&&(rden5==1'b1))//address5=1023,?:???RAM???512???????,?DSP????RAM??512???
+     else if((address5==14'b00001111111110)&&(rden5==1'b1))//address5=1023,?:???RAM???512???????,?DSP????RAM??512???
           high_flag <= 1'b1;
      else 
           begin

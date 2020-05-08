@@ -68,7 +68,7 @@ assign pmd_t = pic_data;
 assign pic_data = (pic_add == 15'h0ff0) ? nj_data_time : 8'bz;//泥浆到时
 assign pic_data = (pic_add == 15'h0ff1) ? nj_data_time : 8'bz;//泥浆到时
 
-assign test = 1'b1;
+assign test = rcvd_datareg == 16'hC824 ? 1'b1:1'b0;
 
 
 cmd_decoder cmd_decoder
@@ -306,7 +306,7 @@ assign pmd_t = pic_data;
 assign pic_data = (pic_add == 15'h0ff0) ? nj_data_time : 8'bz;//泥浆到时
 assign pic_data = (pic_add == 15'h0ff1) ? nj_data_time : 8'bz;//泥浆到时
 
-assign test = 1'b1;
+assign test = rcvd_datareg == 16'hC824 ? 1'b1:1'b0;
 
 
 cmd_decoder cmd_decoder

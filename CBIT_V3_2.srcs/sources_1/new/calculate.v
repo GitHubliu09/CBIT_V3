@@ -135,7 +135,9 @@ begin
                 sweep_cnt <= sweep_cnt + sweep_num1;
         end
         
-        
+        if(sweep_num1 == 8'd0)
+            sweep_en <= 1'b0;
+        else
         if((add_cnt == sweep_cnt) && (acq_cnt == 14'd1 || acq_cnt == 14'd2 ))
             sweep_en <= 1'b1;
         else
@@ -466,7 +468,9 @@ begin
                 sweep_cnt <= sweep_cnt + sweep_num1;
         end
         
-        
+        if(sweep_num1 == 8'd0)
+            sweep_en <= 1'b0;
+        else
         if((add_cnt == sweep_cnt) && (acq_cnt == 14'd1 || acq_cnt == 14'd2 ))
             sweep_en <= 1'b1;
         else

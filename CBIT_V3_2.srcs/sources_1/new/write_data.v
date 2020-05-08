@@ -8,6 +8,7 @@ module write_data
     input clk_w,
     input clk_1m,
 	input start_send,
+	input [15:0]send_data_num,//上传数据个数
     output [15:0]dsp_data,//需要上传的数据的个数
     output reg[11:0]dsp_ma,//控制m5和m7通道的
     output reg wr_n,
@@ -111,7 +112,7 @@ begin
 		if(m5_r_flag)
 		begin
 			dsp_ma <= 12'b0000_0101_0000;
-			dsp_data <= 16'd452;
+			dsp_data <= send_data_num;//452
          
 		end
 		

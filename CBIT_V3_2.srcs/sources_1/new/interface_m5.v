@@ -18,7 +18,7 @@ parameter running=3'b100;
     input clock_32x57;//5.86KHz
 	input reset_;
 	output rden;//connect to ram , read enable
-    output [9:0] rd_address;//connect to ram , read address
+    output [13:0] rd_address;//connect to ram , read address
 
  
 reg rden;
@@ -27,7 +27,7 @@ reg [2:0] state = 3'b001;
 reg [2:0] next_state;
 reg [17:0] counter;
 reg counter_dec;
-reg [9:0] rd_address;
+reg [13:0] rd_address;
 reg flag;
 reg aload;
 
@@ -93,9 +93,9 @@ end
 always @(posedge clock_32x57,negedge reset_)
 begin
    if(!reset_)
-      rd_address <= 10'b0000000000;
+      rd_address <= 14'b0000000000;
    else if(!rden)
-      rd_address <= 10'b0000000000;
+      rd_address <= 14'b0000000000;
    else
       rd_address <= rd_address + 1'b1;
 end
@@ -156,7 +156,7 @@ parameter running=3'b100;
     input clock_32x57;//5.86KHz
 	input reset_;
 	output rden;//connect to ram , read enable
-    output [9:0] rd_address;//connect to ram , read address
+    output [13:0] rd_address;//connect to ram , read address
 
  
 reg rden;
@@ -165,7 +165,7 @@ reg [2:0] state = 3'b001;
 reg [2:0] next_state;
 reg [17:0] counter;
 reg counter_dec;
-reg [9:0] rd_address;
+reg [13:0] rd_address;
 reg flag;
 reg aload;
 
@@ -231,9 +231,9 @@ end
 always @(posedge clock_32x57,negedge reset_)
 begin
    if(!reset_)
-      rd_address <= 10'b0000000000;
+      rd_address <= 14'b0000000000;
    else if(!rden)
-      rd_address <= 10'b0000000000;
+      rd_address <= 14'b0000000000;
    else
       rd_address <= rd_address + 1'b1;
 end

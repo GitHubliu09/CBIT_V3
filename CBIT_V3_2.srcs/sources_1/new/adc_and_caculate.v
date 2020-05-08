@@ -46,7 +46,7 @@ module adc_and_caculate(
 
 /******************* inside connect wire ************************************************/
 wire we_un , re_un , collect_once , collect_achieve , nj_w_en , re_nj , nj_collect_once;
-wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/ , nj_add , radd_nj;
+wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/,collect_num_nj , nj_add , radd_nj;
 wire[15:0]data_un , rdata_un , nj_data , rdata_nj;
 wire sweep_write_en_t , nj_doing , sweep_write_en_nj;
 wire adc_clk_ttl_t;
@@ -56,13 +56,13 @@ wire test_collect,test_collect2;
 reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 
 //test
-assign upload_nj = 1'b0;
+assign upload_nj = 1'b1;
 
 assign sweep_add = upload_nj ? radd_nj[0] : radd_un[0];
 assign sweep_data = upload_nj ? rdata_nj : rdata_un;
 assign sweep_write_en = upload_nj ? sweep_write_en_nj : sweep_write_en_t;
-assign test = (data_un_test2 == data_un_test)? 1'b1:1'b0;
-assign test2 = (data_un_test3 == data_un_test4)? 1'b1:1'b0;
+assign test = nj_w_en;
+assign test2 = sweep_write_en_t;
 
 
 always@(negedge CLK60M or posedge rst)
@@ -107,6 +107,7 @@ collect_nj collect_nj(
     .collect_achieve(collect_achieve),
     .fire_once(fire_once),
     .adc_data(adc_data),
+    .collect_num_nj(collect_num_nj),
     
     .nj_data(nj_data ),
     .nj_add(nj_add),
@@ -134,7 +135,7 @@ calculate_nj calculate_nj(
     .en_read(re_nj),
     .add_r(radd_nj),
     .data_r(rdata_nj),
-    .collect_num( ),
+    .collect_num( collect_num_nj),
 //    .collectmark(collectmark),
     .bodymark( ),
 //    .stopmark(stopmark),
@@ -275,7 +276,7 @@ module adc_and_caculate(
 
 /******************* inside connect wire ************************************************/
 wire we_un , re_un , collect_once , collect_achieve , nj_w_en , re_nj , nj_collect_once;
-wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/ , nj_add , radd_nj;
+wire[13:0]wadd_un , radd_un , collect_num/*once collect number*/,collect_num_nj , nj_add , radd_nj;
 wire[15:0]data_un , rdata_un , nj_data , rdata_nj;
 wire sweep_write_en_t , nj_doing , sweep_write_en_nj;
 wire adc_clk_ttl_t;
@@ -285,13 +286,13 @@ wire test_collect,test_collect2;
 reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 
 //test
-assign upload_nj = 1'b0;
+assign upload_nj = 1'b1;
 
 assign sweep_add = upload_nj ? radd_nj[0] : radd_un[0];
 assign sweep_data = upload_nj ? rdata_nj : rdata_un;
 assign sweep_write_en = upload_nj ? sweep_write_en_nj : sweep_write_en_t;
-assign test = (data_un_test2 == data_un_test)? 1'b1:1'b0;
-assign test2 = (data_un_test3 == data_un_test4)? 1'b1:1'b0;
+assign test = nj_w_en;
+assign test2 = sweep_write_en_t;
 
 
 always@(negedge CLK60M or posedge rst)
@@ -336,6 +337,7 @@ collect_nj collect_nj(
     .collect_achieve(collect_achieve),
     .fire_once(fire_once),
     .adc_data(adc_data),
+    .collect_num_nj(collect_num_nj),
     
     .nj_data(nj_data ),
     .nj_add(nj_add),
@@ -363,7 +365,7 @@ calculate_nj calculate_nj(
     .en_read(re_nj),
     .add_r(radd_nj),
     .data_r(rdata_nj),
-    .collect_num( ),
+    .collect_num( collect_num_nj),
 //    .collectmark(collectmark),
     .bodymark( ),
 //    .stopmark(stopmark),

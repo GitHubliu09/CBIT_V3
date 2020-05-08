@@ -76,7 +76,7 @@ wire test1 , test2 , cmd_t;
 wire [1:0]state;
 reg test_reg = 1'b0;
 wire collect_achieve;
-wire test_edib,test_count,test_adc,test_adc2;
+wire test_cmd,test_fire,test_edib,test_edib2,test_count,test_adc,test_adc2;
 reg testtest;
 /******************* test output ********************************/
 //assign uart_rx = bodymark;
@@ -95,16 +95,17 @@ assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
 assign m7_bzo = m5_bzo;
 assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
-assign gain[0] = test_edib;
-assign gain[1] = sendmark;
-assign gain[2] = test_adc;
-assign gain[3] = test_adc2;
-assign gain[4] = clk_1m;
-assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
+assign gain[0] = oe_nj;
+assign gain[1] = oe_20;
+assign gain[2] = test_fire;
+assign gain[3] = sig_mux[1];
+assign gain[4] = test_adc;
+//assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 /************************* parameter ***********************************************************/
 parameter delay_time = 8'd100;//delay time us //35//124//
-parameter collect_num = 13'd2000;//colect number 一次回波ADC采集的点数//2440
-parameter extract_num = 8'd3; //抽取位数
+parameter collect_num = 14'd2000;//colect number 一次回波ADC采集的点数//2440
+parameter extract_num = 8'd2; //抽取位数
+parameter send_data_num = 16'd452;//上传数据个数
 assign clk_adc_sample = CLK20M;
 
 
@@ -168,7 +169,8 @@ cmd_pic cmd_pic(
     .send_m2( send_m2),
     .send_cmd( send_cmd),
     .speed(speed),
-    .m5m7_switch(m5m7_switch)
+    .m5m7_switch(m5m7_switch),
+    .test(test_cmd)
 );
 
 count_mod count_mod(
@@ -201,7 +203,8 @@ fire_all fire_all(
     .fire_once(fire_once),
     .fire_achieve(fire_achieve),
     .error_fire(error_fire),
-    .state(state)
+    .state(state),
+    .test_fire(test_fire)
 );
 
 adc_and_caculate adc_and_caculate(
@@ -221,7 +224,7 @@ adc_and_caculate adc_and_caculate(
     .collect_num(collect_num),
     .delay_time(delay_time),
     
-    .select( ),
+    .select(sig_mux ),
     .adc_shdn(adc_shdn),
     .adc_oe(adc_oe),
     .adc_clk_ttl(adc_clk_ttl),
@@ -287,13 +290,15 @@ edib edib(
     .send_m2(send_m2),
     .send_cmd(send_cmd),
     .extract_num(extract_num),
+    .send_data_num(send_data_num),
     
     .stop_message(stop_message),
     .m5_bzo(m5_bzo),
     .m5_boo(m5_boo),
     .m2_bzo(m2_bzo),
     .m2_boo(m2_boo),
-    .test(test_edib)
+    .test(test_edib),
+    .test2(test_edib2)
 );
 
 

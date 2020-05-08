@@ -49,6 +49,7 @@ module edib(
     input send_m2,
     input [2:0]send_cmd,
     input [7:0]extract_num,//抽取位数
+    input [15:0]send_data_num,
     
     
     output stop_message,
@@ -56,18 +57,20 @@ module edib(
     output m5_boo,
     output m2_bzo,
     output m2_boo,
-    output test
+    output test,
+    output test2
     );
 
 /********************* test wire ************************************/
-wire test,test_c_ram,test_w_t_ram;
+wire test,test_c_ram,test_w_t_ram,test_w_t_ram2;
 /******************** inside connect wire **************************************/
 wire write_en , clk_fifo_out , ren_m5 , wr_n , cs , speed4x_on , clk_57 ,write_ram_done;
 wire [13:0]write_add , rd_add_m5;
 wire [15:0]write_data_m , rd_m5 , db;
 wire [11:0]dsp_ma , ma;
 
-assign test = test_w_t_ram;
+assign test = rd_add_m5 == 16'd1998 ? 1'b1:1'b0;
+assign test2 = rd_m5 == 16'd1998 ? 1'b1:1'b0;
 
 
 up_send up_send(
@@ -125,6 +128,48 @@ write_to_ram write_to_ram(
     .test(test_w_t_ram)
     );
 
+//write_to_ram_send_data write_to_ram_send_data(
+//    .clk( CLK60M),
+//    .clk_20m(CLK20M),
+//    .rst(rst),
+////    .collectmark(collectmark),
+//    .bodymark(bodymark),
+//    .oncemark(oncemark),
+////    .stopmark(stopmark),
+//    .we_time(we),
+//    .we_peak(we),
+//    .add_time(wadd),
+//    .add_peak(wadd),
+//    .data_time(data_time),
+//    .data_peak(data_peak),
+//    .calculate_achieve(calculate_achieve),
+//    .now_num(now_num),
+//    .sweep_en(sweep_en),
+//    .sweep_add(sweep_add ),
+//    .sweep_data(sweep_data ),
+//    .change_message(change_message),
+//    .message1(message1),
+//    .message2(message2),
+//    .message3(message3),
+//    .message4(message4),
+//    .message5(message5),
+//    .message6(message6),
+//    .message7(message7),
+//    .message8(message8),
+//    .message9(message9),
+//    .message10(message10),
+//    .message11(message11),
+//    .extract_num(extract_num),
+    
+//    .write_ram_done(write_ram_done),
+//    .stop_message(stop_message),
+//    .write_en(write_en),
+//    .write_add(write_add),
+//    .write_data(write_data_m),
+//    .test(test_w_t_ram),
+//    .test2(test_w_t_ram2)
+//    );
+
 //test_change_ram test1(
 //    .clk(CLK60M),
 //    .rst(rst),
@@ -133,6 +178,22 @@ write_to_ram write_to_ram(
 //    .write_add(write_add),
 //    .write_data(write_data_m)
 //);
+ 
+//  test_ram test_ram(
+//    .clk( ~CLK60M ),
+//    .rst(rst),
+//    .write_ram_done(write_ram_done),
+//    .write_add( write_add ),
+//    .write_en( write_en ),
+//    .write_data( write_data_m ),
+//    .clk_fifo_out( ~clk_fifo_out ),
+//    .ren_m5( ren_m5 ),
+//    .rd_add_m5( rd_add_m5 ),
+//    .send_data_num(send_data_num),
+    
+//    .rd_m5( rd_m5 ),
+//    .test(test_c_ram )
+// );
  
  change_ram change_ram(
     .clk( ~CLK60M ),
@@ -144,6 +205,7 @@ write_to_ram write_to_ram(
     .clk_fifo_out( ~clk_fifo_out ),
     .ren_m5( ren_m5 ),
     .rd_add_m5( rd_add_m5 ),
+    
     .rd_m5( rd_m5 ),
     .test(test_c_ram )
  );
@@ -156,6 +218,7 @@ write_data write_data
     .clk_1m( clk_2m),
 //    .testint(testint),
     .start_send( sendmark ),
+    .send_data_num(send_data_num),
     .dsp_data(db),
     .dsp_ma(dsp_ma),
     .wr_n(wr_n),
@@ -275,6 +338,7 @@ module edib(
     input send_m2,
     input [2:0]send_cmd,
     input [7:0]extract_num,//抽取位数
+    input [15:0]send_data_num,
     
     
     output stop_message,
@@ -282,18 +346,20 @@ module edib(
     output m5_boo,
     output m2_bzo,
     output m2_boo,
-    output test
+    output test,
+    output test2
     );
 
 /********************* test wire ************************************/
-wire test,test_c_ram,test_w_t_ram;
+wire test,test_c_ram,test_w_t_ram,test_w_t_ram2;
 /******************** inside connect wire **************************************/
 wire write_en , clk_fifo_out , ren_m5 , wr_n , cs , speed4x_on , clk_57 ,write_ram_done;
 wire [13:0]write_add , rd_add_m5;
 wire [15:0]write_data_m , rd_m5 , db;
 wire [11:0]dsp_ma , ma;
 
-assign test = test_w_t_ram;
+assign test = rd_add_m5 == 16'd1998 ? 1'b1:1'b0;
+assign test2 = rd_m5 == 16'd1998 ? 1'b1:1'b0;
 
 
 up_send up_send(
@@ -351,6 +417,48 @@ write_to_ram write_to_ram(
     .test(test_w_t_ram)
     );
 
+//write_to_ram_send_data write_to_ram_send_data(
+//    .clk( CLK60M),
+//    .clk_20m(CLK20M),
+//    .rst(rst),
+////    .collectmark(collectmark),
+//    .bodymark(bodymark),
+//    .oncemark(oncemark),
+////    .stopmark(stopmark),
+//    .we_time(we),
+//    .we_peak(we),
+//    .add_time(wadd),
+//    .add_peak(wadd),
+//    .data_time(data_time),
+//    .data_peak(data_peak),
+//    .calculate_achieve(calculate_achieve),
+//    .now_num(now_num),
+//    .sweep_en(sweep_en),
+//    .sweep_add(sweep_add ),
+//    .sweep_data(sweep_data ),
+//    .change_message(change_message),
+//    .message1(message1),
+//    .message2(message2),
+//    .message3(message3),
+//    .message4(message4),
+//    .message5(message5),
+//    .message6(message6),
+//    .message7(message7),
+//    .message8(message8),
+//    .message9(message9),
+//    .message10(message10),
+//    .message11(message11),
+//    .extract_num(extract_num),
+    
+//    .write_ram_done(write_ram_done),
+//    .stop_message(stop_message),
+//    .write_en(write_en),
+//    .write_add(write_add),
+//    .write_data(write_data_m),
+//    .test(test_w_t_ram),
+//    .test2(test_w_t_ram2)
+//    );
+
 //test_change_ram test1(
 //    .clk(CLK60M),
 //    .rst(rst),
@@ -359,6 +467,22 @@ write_to_ram write_to_ram(
 //    .write_add(write_add),
 //    .write_data(write_data_m)
 //);
+ 
+//  test_ram test_ram(
+//    .clk( ~CLK60M ),
+//    .rst(rst),
+//    .write_ram_done(write_ram_done),
+//    .write_add( write_add ),
+//    .write_en( write_en ),
+//    .write_data( write_data_m ),
+//    .clk_fifo_out( ~clk_fifo_out ),
+//    .ren_m5( ren_m5 ),
+//    .rd_add_m5( rd_add_m5 ),
+//    .send_data_num(send_data_num),
+    
+//    .rd_m5( rd_m5 ),
+//    .test(test_c_ram )
+// );
  
  change_ram change_ram(
     .clk( ~CLK60M ),
@@ -370,6 +494,7 @@ write_to_ram write_to_ram(
     .clk_fifo_out( ~clk_fifo_out ),
     .ren_m5( ren_m5 ),
     .rd_add_m5( rd_add_m5 ),
+    
     .rd_m5( rd_m5 ),
     .test(test_c_ram )
  );
@@ -382,6 +507,7 @@ write_data write_data
     .clk_1m( clk_2m),
 //    .testint(testint),
     .start_send( sendmark ),
+    .send_data_num(send_data_num),
     .dsp_data(db),
     .dsp_ma(dsp_ma),
     .wr_n(wr_n),
