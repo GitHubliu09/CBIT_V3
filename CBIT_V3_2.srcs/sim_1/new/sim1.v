@@ -139,6 +139,56 @@ Ultrasonic_TOP top(
 //    );
 
 
+//reg clk_1ns , ren_m5 , send_m2 ;
+//reg [2:0] send_cmd;
+//reg [13:0]rd_add_m5;
+//initial clk_1ns = 1'b0;
+//always #1 clk_1ns = ~clk_1ns;
+//initial ren_m5 = 1'b0;
+//initial send_m2 = 1'b1;
+//initial rd_add_m5 = 14'd0;
+
+//always
+//begin
+//    #1 send_cmd = 3'd0;
+//    #200 send_cmd = 3'd7;
+//    #2 send_cmd  = 3'd0;
+//    #40 ren_m5 = 1'b1;
+//    #1 rd_add_m5 = 14'd0;
+//    #2 rd_add_m5 = 14'd1;
+//    #2 rd_add_m5 = 14'd2;
+//    #2 rd_add_m5 = 14'd3;
+//    #2 rd_add_m5 = 14'd4;
+//    #2 rd_add_m5 = 14'd5;
+//    #2 rd_add_m5 = 14'd6;
+//    #2 rd_add_m5 = 14'd7;
+//    #2 rd_add_m5 = 14'd8;
+//    #2 rd_add_m5 = 14'd9;
+//    #2 rd_add_m5 = 14'd10;
+//    #2 rd_add_m5 = 14'd11;
+//    #2 rd_add_m5 = 14'd12;
+//    #2 rd_add_m5 = 14'd13;
+//    #2 rd_add_m5 = 14'd14;
+//    #2 rd_add_m5 = 14'd15;
+//    #2 rd_add_m5 = 14'd16;
+//    #2 ren_m5 = 1'b0;
+//    #2 rd_add_m5 = 14'd0;
+//end
+
+//send_subsete_m5 send_subsete_m5(
+//    .clk( clk_1ns ),
+//    .rst( rst ),
+//    .clk_fifo_out( clk_1ns ),//读时钟
+//    .ren_m5(ren_m5 ),//读使能
+//    .rd_add_m5( rd_add_m5),//读地址
+//    .send_m2( send_m2),
+//    .send_cmd( send_cmd),//当为7时，上传m5，m7
+    
+//    .rd_m5( ),
+//    .m5m7_all_send( ),//当为高时，代表此时上传subsetE，测试数据，m5和m7同时上传
+//    .send( ),//开始上传
+//    .test( )
+//    );
 
 
 endmodule

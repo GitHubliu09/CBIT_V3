@@ -337,17 +337,17 @@ end
 //); 
 
 //特征函数：第二种
-lat_cf2 lat_cf2(
-	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
-	.collect_once( start_cal),//使能信号,1个周期即可
-	.clk_60m(clk),//时钟20MHz 工作周期50ns
-	.rst(rst),
-	.collect_num(collect_num),//collect number
-	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
-	.add_r( add_r),//读ram地址
-	.en_read( en_read),//读ram使能
-	.CAL_END(CAL_END)//计算完成标志
-);
+//lat_cf2 lat_cf2(
+//	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
+//	.collect_once( start_cal),//使能信号,1个周期即可
+//	.clk_60m(clk),//时钟20MHz 工作周期50ns
+//	.rst(rst),
+//	.collect_num(collect_num),//collect number
+//	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
+//	.add_r( add_r),//读ram地址
+//	.en_read( en_read),//读ram使能
+//	.CAL_END(CAL_END)//计算完成标志
+//);
     
 endmodule
 `timescale 1ns / 1ps
@@ -689,16 +689,16 @@ end
 //); 
 
 //特征函数：第二种
-lat_cf2 lat_cf2(
-	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
-	.collect_once( start_cal),//使能信号,1个周期即可
-	.clk_60m(clk),//时钟20MHz 工作周期50ns
-	.rst(rst),
-	.collect_num(collect_num),//collect number
-	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
-	.add_r( add_r),//读ram地址
-	.en_read( en_read),//读ram使能
-	.CAL_END(CAL_END)//计算完成标志
-);
+//lat_cf2 lat_cf2(
+//	.data_r( data_r),//adc采集的数据（偏移二进制码）从ram里面取出来
+//	.collect_once( start_cal),//使能信号,1个周期即可
+//	.clk_60m(clk),//时钟20MHz 工作周期50ns
+//	.rst(rst),
+//	.collect_num(collect_num),//collect number
+//	.data_time(data_time_t ),// data_time = data_arrive + DELAY_TIME
+//	.add_r( add_r),//读ram地址
+//	.en_read( en_read),//读ram使能
+//	.CAL_END(CAL_END)//计算完成标志
+//);
     
 endmodule

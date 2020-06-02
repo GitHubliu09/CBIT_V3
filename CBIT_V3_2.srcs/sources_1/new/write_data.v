@@ -9,22 +9,25 @@ module write_data
     input clk_1m,
 	input start_send,
 	input [15:0]send_data_num,//上传数据个数
+	input m5m7_all_send,//subsetE
+	input start_send_subsete,//start send subsetE
     output [15:0]dsp_data,//需要上传的数据的个数
     output reg[11:0]dsp_ma,//控制m5和m7通道的
     output reg wr_n,
-    output xz6_cs,
-    output speed4x_on
+    output xz6_cs
 );
 
 reg [15:0]dsp_data;
 reg m5_w_flag,m7_w_flag,m5_r_flag,m7_r_flag,delay_flag;
 reg start = 1'b1; 
 reg stop;
-
 reg [3:0]counter = 4'd0;
+wire [15:0]send_data_num_t;
+wire start_send_subsete_t;
+assign send_data_num_t = m5m7_all_send ? 16'd17 : send_data_num;
+assign start_send_subsete_t = m5m7_all_send ? start_send_subsete : 1'b0;
 
 //assign send_cmd = 4'he;//test command
-assign speed4x_on = 1'b1;//
 assign xz6_cs = 1'b0;
 //assign dsp_data = 16'haa55;
 
@@ -38,7 +41,7 @@ begin
     else
     begin
        
-        if(start_send)
+        if(start_send || start_send_subsete_t)
         begin
             start <= 1'b1;
             stop <= 1'b0;
@@ -112,7 +115,7 @@ begin
 		if(m5_r_flag)
 		begin
 			dsp_ma <= 12'b0000_0101_0000;
-			dsp_data <= send_data_num;//452
+			dsp_data <= send_data_num_t;//452
          
 		end
 		

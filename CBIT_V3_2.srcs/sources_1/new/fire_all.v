@@ -14,6 +14,7 @@ module fire_all(
 //    input stopmark,
     input collect_achieve,
     input [7:0] now_num,
+    input trans,
     
     output oe_15,
     output oe_20,
@@ -41,6 +42,8 @@ fire fire(
 //    .stopmark(stopmark),
     .collect_achieve(collect_achieve),
     .now_num(now_num),
+    .trans(trans),
+    
     .oe_15(oe_15),
     .oe_20(oe_20),
     .oe_nj(oe_nj),
@@ -74,6 +77,7 @@ module fire_all(
 //    input stopmark,
     input collect_achieve,
     input [7:0] now_num,
+    input trans,
     
     output oe_15,
     output oe_20,
@@ -101,6 +105,8 @@ fire fire(
 //    .stopmark(stopmark),
     .collect_achieve(collect_achieve),
     .now_num(now_num),
+    .trans(trans),
+    
     .oe_15(oe_15),
     .oe_20(oe_20),
     .oe_nj(oe_nj),

@@ -34,6 +34,7 @@ reg int_t;
 reg [4:0]waddr;
 reg [4:0]counter;
 reg [1:0]state;
+reg [9:0]int_cnt;
 reg test_cnt;
 
 parameter IDLE = 2'b00;
@@ -160,15 +161,23 @@ end
 always@(posedge wclk or posedge rst)
 begin
     if(rst)
+    begin
         int <= 1'b0;
+        int_cnt <= 10'd0;
+    end
     else 
     begin
     if(int_t)
         int <= 1'b1;
-    if(stopint)
+    if(stopint )//       || ( int_cnt == 10'd1000 )
+    begin
         int <= 1'b0;
-//    if(int)
-//        int <= 1'b0;
+        int_cnt <= 10'd0;
+    end
+    if(int)
+    begin
+        int_cnt <= int_cnt + 1'b1;
+    end
     end
 end
 
@@ -242,6 +251,7 @@ reg int_t;
 reg [4:0]waddr;
 reg [4:0]counter;
 reg [1:0]state;
+reg [9:0]int_cnt;
 reg test_cnt;
 
 parameter IDLE = 2'b00;
@@ -368,15 +378,23 @@ end
 always@(posedge wclk or posedge rst)
 begin
     if(rst)
+    begin
         int <= 1'b0;
+        int_cnt <= 10'd0;
+    end
     else 
     begin
     if(int_t)
         int <= 1'b1;
-    if(stopint)
+    if(stopint )//       || ( int_cnt == 10'd1000 )
+    begin
         int <= 1'b0;
-//    if(int)
-//        int <= 1'b0;
+        int_cnt <= 10'd0;
+    end
+    if(int)
+    begin
+        int_cnt <= int_cnt + 1'b1;
+    end
     end
 end
 

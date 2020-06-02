@@ -25,7 +25,7 @@ module cmd_pic(
     output bodymark,                    //一周的起始位置
     output oncemark,                    //一次齿牙信号
 //    output stopmark,
-    output [7:0]sweep_num,              //表示上传的是一次采集的250点中的哪一个点
+    output [7:0]sweep,              //表示上传的是一次采集的250点中的哪一个点
     output reg change_message,          //上传的11word的信息
     output [15:0]message1,
     output [15:0]message2,
@@ -41,8 +41,9 @@ module cmd_pic(
     output write_message_en,
     output send_m2,
     output [2:0]send_cmd,                  //m2通道上传的信息 下发命令（16bit）+ 状态字（16bit）
-    output speed,                          //上传速度选择 单倍/四倍
-    output m5m7_switch,
+    output speed,                          //上传速度选择 单倍/四倍  0-1倍速 1-4倍速
+    output m5m7_switch,                     //0 m5  1 m7
+    output trans,                           //0 -> 1'5  1 -> 2'0
     output test
     );
 /******************* outside connect wire & reg *********************************/
@@ -53,6 +54,8 @@ reg [15:0]message1,message2,message3,message4,message5,message6,message7,message
 reg speed_t,m5m7_switch_t;
 reg speed , m5m7_switch;//speed  0 -> 单倍速  1->   四倍速  ; switch 0 - > m5  , 1 -> m7
 reg [15:0]ram_version , rom_version , self_test;
+reg trans;//trans 发射探头 0 -> 1'5  1-> 2'0
+reg [7:0]sweep;
 /******************* test wire ********************************************/
 wire testpoint;
 wire [7:0]data_t;
@@ -62,13 +65,15 @@ wire[15:0]rcvd_datareg;
 wire rcv_cmd ,r_cmd_en  , stopint , write_message_en;
 wire [7:0]pmd_t , data_pmd;
 wire [5:0]r_cmd_add , write_message_add;
+wire [14:0]pic_add_t;
 
 assign pic_data =  (pic_add[14:6] == 9'b000_1111_00) ? data_pmd : 8'bz;//0x0fxx
 assign pmd_t = pic_data;
 assign pic_data = (pic_add == 15'h0ff0) ? nj_data_time : 8'bz;//泥浆到时
 assign pic_data = (pic_add == 15'h0ff1) ? nj_data_time : 8'bz;//泥浆到时
+assign pic_add_t = pic_add ;// test pic_add
 
-assign test = rcvd_datareg == 16'hC824 ? 1'b1:1'b0;
+assign test =sweep[0];
 
 
 cmd_decoder cmd_decoder
@@ -113,14 +118,14 @@ add_decode add_decode(
     .read_cmd_add(r_cmd_add),
     .write_message_en( write_message_en),
     .write_message_add(write_message_add),
-    .add_in( pic_add),//test  pic_add
+    .add_in( pic_add_t),//test  pic_add
     .sendmark(sendmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
 //    .stopmark(stopmark),
     .stopint(stopint),
     .testpoint(testpoint),
-    .sweep_num(sweep_num)
+    .sweep_num( )
 );
 
 always@(posedge CLK20M or posedge rst)
@@ -145,59 +150,59 @@ begin
     end
     else
     begin
-         if(pic_add == 15'h0e00)
-            message1[7:0] <= pmd_t;
-         if(pic_add == 15'h0e01)
-            message1[15:8] <= pmd_t;
-         if(pic_add == 15'h0e02)
+         if(pic_add_t == 15'h0e00)
+            message1[7:0] <= pmd_t;//message1 其他为反射波增益
+         if(pic_add_t == 15'h0e01)
+            message1[15:8] <= pmd_t;//message1[15] POWER发射功率大小（PIC控制）  message[14:10] SPER采样率
+         if(pic_add_t == 15'h0e02)
             message2[7:0] <= pmd_t;
-         if(pic_add == 15'h0e03)
-            message2[15:8] <= pmd_t;
-         if(pic_add == 15'h0e04)
+         if(pic_add_t == 15'h0e03)
+            message2[15:8] <= pmd_t;// message2[14] AGC自动增益 0 OFF 1 ON  message2[13] TRANS 发射探头 0 1.5  1 2.0  message2[12] TRIG 方位 暂时无用
+         if(pic_add_t == 15'h0e04)
             message3[7:0] <= pmd_t;
-         if(pic_add == 15'h0e05)
+         if(pic_add_t == 15'h0e05)
             message3[15:8] <= pmd_t;
-         if(pic_add == 15'h0e06)
+         if(pic_add_t == 15'h0e06)
             message4[7:0] <= pmd_t;
-         if(pic_add == 15'h0e07)
+         if(pic_add_t == 15'h0e07)
             message4[15:8] <= pmd_t;
-         if(pic_add == 15'h0e08)
+         if(pic_add_t == 15'h0e08)
             message5[7:0] <= pmd_t;
-         if(pic_add == 15'h0e09)
-            message5[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0a)
+         if(pic_add_t == 15'h0e09)
+            message5[15:8] <= pmd_t;// sweep
+         if(pic_add_t == 15'h0e0a)
             message6[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0b)
+         if(pic_add_t == 15'h0e0b)
             message6[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0c)
+         if(pic_add_t == 15'h0e0c)
             message7[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0d)
+         if(pic_add_t == 15'h0e0d)
             message7[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0e)
+         if(pic_add_t == 15'h0e0e)
             message8[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0f)
+         if(pic_add_t == 15'h0e0f)
             message8[15:8] <= pmd_t;
-         if(pic_add == 15'h0e10)
+         if(pic_add_t == 15'h0e10)
             message9[7:0] <= pmd_t;
-         if(pic_add == 15'h0e11)
+         if(pic_add_t == 15'h0e11)
             message9[15:8] <= pmd_t;
-         if(pic_add == 15'h0e12)
+         if(pic_add_t == 15'h0e12)
             message10[7:0] <= pmd_t;
-         if(pic_add == 15'h0e13)
+         if(pic_add_t == 15'h0e13)
             message10[15:8] <= pmd_t;
-         if(pic_add == 15'h0e14)
+         if(pic_add_t == 15'h0e14)
             message11[7:0] <= pmd_t;
-         if(pic_add == 15'h0e15)
+         if(pic_add_t == 15'h0e15)
             message11[15:8] <= pmd_t;
-         if(pic_add == 15'h0e16)
+         if(pic_add_t == 15'h0e16)
             speed_t <= pmd_t;
-         if(pic_add == 15'h0e17)
+         if(pic_add_t == 15'h0e17)
             m5m7_switch_t <= pmd_t;
          
-         if(pic_add == 15'h0e18)
+         if(pic_add_t == 15'h0e18)
          begin
             send_m2 <= 1'b1;
-            send_cmd <= 3'd1 ; //test pmd_t
+            send_cmd <= 3'd7 ; //test pmd_t
          end
          else if(send_m2_t2)
             send_m2 <= 1'b0;
@@ -226,11 +231,15 @@ begin
     begin
         speed <= 1'b1;
         m5m7_switch <= 1'b0;
+        trans <= 1'b0;
+        sweep <= 8'd0;
     end
     else
     begin
         speed <= speed_t;
         m5m7_switch <= m5m7_switch_t;
+        trans <= message2[13];
+        sweep <= message5[15:8];
     end
 end
 
@@ -263,7 +272,7 @@ module cmd_pic(
     output bodymark,                    //一周的起始位置
     output oncemark,                    //一次齿牙信号
 //    output stopmark,
-    output [7:0]sweep_num,              //表示上传的是一次采集的250点中的哪一个点
+    output [7:0]sweep,              //表示上传的是一次采集的250点中的哪一个点
     output reg change_message,          //上传的11word的信息
     output [15:0]message1,
     output [15:0]message2,
@@ -279,8 +288,9 @@ module cmd_pic(
     output write_message_en,
     output send_m2,
     output [2:0]send_cmd,                  //m2通道上传的信息 下发命令（16bit）+ 状态字（16bit）
-    output speed,                          //上传速度选择 单倍/四倍
-    output m5m7_switch,
+    output speed,                          //上传速度选择 单倍/四倍  0-1倍速 1-4倍速
+    output m5m7_switch,                     //0 m5  1 m7
+    output trans,                           //0 -> 1'5  1 -> 2'0
     output test
     );
 /******************* outside connect wire & reg *********************************/
@@ -291,6 +301,8 @@ reg [15:0]message1,message2,message3,message4,message5,message6,message7,message
 reg speed_t,m5m7_switch_t;
 reg speed , m5m7_switch;//speed  0 -> 单倍速  1->   四倍速  ; switch 0 - > m5  , 1 -> m7
 reg [15:0]ram_version , rom_version , self_test;
+reg trans;//trans 发射探头 0 -> 1'5  1-> 2'0
+reg [7:0]sweep;
 /******************* test wire ********************************************/
 wire testpoint;
 wire [7:0]data_t;
@@ -300,13 +312,15 @@ wire[15:0]rcvd_datareg;
 wire rcv_cmd ,r_cmd_en  , stopint , write_message_en;
 wire [7:0]pmd_t , data_pmd;
 wire [5:0]r_cmd_add , write_message_add;
+wire [14:0]pic_add_t;
 
 assign pic_data =  (pic_add[14:6] == 9'b000_1111_00) ? data_pmd : 8'bz;//0x0fxx
 assign pmd_t = pic_data;
 assign pic_data = (pic_add == 15'h0ff0) ? nj_data_time : 8'bz;//泥浆到时
 assign pic_data = (pic_add == 15'h0ff1) ? nj_data_time : 8'bz;//泥浆到时
+assign pic_add_t = pic_add ;// test pic_add
 
-assign test = rcvd_datareg == 16'hC824 ? 1'b1:1'b0;
+assign test =sweep[0];
 
 
 cmd_decoder cmd_decoder
@@ -351,14 +365,14 @@ add_decode add_decode(
     .read_cmd_add(r_cmd_add),
     .write_message_en( write_message_en),
     .write_message_add(write_message_add),
-    .add_in( pic_add),//test  pic_add
+    .add_in( pic_add_t),//test  pic_add
     .sendmark(sendmark),
     .bodymark(bodymark),
     .oncemark(oncemark),
 //    .stopmark(stopmark),
     .stopint(stopint),
     .testpoint(testpoint),
-    .sweep_num(sweep_num)
+    .sweep_num( )
 );
 
 always@(posedge CLK20M or posedge rst)
@@ -383,59 +397,59 @@ begin
     end
     else
     begin
-         if(pic_add == 15'h0e00)
-            message1[7:0] <= pmd_t;
-         if(pic_add == 15'h0e01)
-            message1[15:8] <= pmd_t;
-         if(pic_add == 15'h0e02)
+         if(pic_add_t == 15'h0e00)
+            message1[7:0] <= pmd_t;//message1 其他为反射波增益
+         if(pic_add_t == 15'h0e01)
+            message1[15:8] <= pmd_t;//message1[15] POWER发射功率大小（PIC控制）  message[14:10] SPER采样率
+         if(pic_add_t == 15'h0e02)
             message2[7:0] <= pmd_t;
-         if(pic_add == 15'h0e03)
-            message2[15:8] <= pmd_t;
-         if(pic_add == 15'h0e04)
+         if(pic_add_t == 15'h0e03)
+            message2[15:8] <= pmd_t;// message2[14] AGC自动增益 0 OFF 1 ON  message2[13] TRANS 发射探头 0 1.5  1 2.0  message2[12] TRIG 方位 暂时无用
+         if(pic_add_t == 15'h0e04)
             message3[7:0] <= pmd_t;
-         if(pic_add == 15'h0e05)
+         if(pic_add_t == 15'h0e05)
             message3[15:8] <= pmd_t;
-         if(pic_add == 15'h0e06)
+         if(pic_add_t == 15'h0e06)
             message4[7:0] <= pmd_t;
-         if(pic_add == 15'h0e07)
+         if(pic_add_t == 15'h0e07)
             message4[15:8] <= pmd_t;
-         if(pic_add == 15'h0e08)
+         if(pic_add_t == 15'h0e08)
             message5[7:0] <= pmd_t;
-         if(pic_add == 15'h0e09)
-            message5[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0a)
+         if(pic_add_t == 15'h0e09)
+            message5[15:8] <= pmd_t;// sweep
+         if(pic_add_t == 15'h0e0a)
             message6[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0b)
+         if(pic_add_t == 15'h0e0b)
             message6[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0c)
+         if(pic_add_t == 15'h0e0c)
             message7[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0d)
+         if(pic_add_t == 15'h0e0d)
             message7[15:8] <= pmd_t;
-         if(pic_add == 15'h0e0e)
+         if(pic_add_t == 15'h0e0e)
             message8[7:0] <= pmd_t;
-         if(pic_add == 15'h0e0f)
+         if(pic_add_t == 15'h0e0f)
             message8[15:8] <= pmd_t;
-         if(pic_add == 15'h0e10)
+         if(pic_add_t == 15'h0e10)
             message9[7:0] <= pmd_t;
-         if(pic_add == 15'h0e11)
+         if(pic_add_t == 15'h0e11)
             message9[15:8] <= pmd_t;
-         if(pic_add == 15'h0e12)
+         if(pic_add_t == 15'h0e12)
             message10[7:0] <= pmd_t;
-         if(pic_add == 15'h0e13)
+         if(pic_add_t == 15'h0e13)
             message10[15:8] <= pmd_t;
-         if(pic_add == 15'h0e14)
+         if(pic_add_t == 15'h0e14)
             message11[7:0] <= pmd_t;
-         if(pic_add == 15'h0e15)
+         if(pic_add_t == 15'h0e15)
             message11[15:8] <= pmd_t;
-         if(pic_add == 15'h0e16)
+         if(pic_add_t == 15'h0e16)
             speed_t <= pmd_t;
-         if(pic_add == 15'h0e17)
+         if(pic_add_t == 15'h0e17)
             m5m7_switch_t <= pmd_t;
          
-         if(pic_add == 15'h0e18)
+         if(pic_add_t == 15'h0e18)
          begin
             send_m2 <= 1'b1;
-            send_cmd <= 3'd1 ; //test pmd_t
+            send_cmd <= 3'd7 ; //test pmd_t
          end
          else if(send_m2_t2)
             send_m2 <= 1'b0;
@@ -464,11 +478,15 @@ begin
     begin
         speed <= 1'b1;
         m5m7_switch <= 1'b0;
+        trans <= 1'b0;
+        sweep <= 8'd0;
     end
     else
     begin
         speed <= speed_t;
         m5m7_switch <= m5m7_switch_t;
+        trans <= message2[13];
+        sweep <= message5[15:8];
     end
 end
 

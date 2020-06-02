@@ -12,6 +12,8 @@ module fire(
     input oncemark,
     input collect_achieve,
     input [7:0]now_num,
+    input trans,
+    
     output oe_15,
     output oe_20,
     output oe_nj,
@@ -54,8 +56,8 @@ module fire(
     reg [7:0] duration_cnt = 8'd0;
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
-    assign oe_15 = 1'b0;
-    assign oe_20 = oe_15_t;//oe_nj_t
+    assign oe_15 = trans ? 1'b0 : oe_15_t;
+    assign oe_20 = trans ? oe_15_t : 1'b0;//oe_nj_t
     assign oe_nj = oe_nj_t;//oe_15_t
     assign fire_a = fire_t_a;
     assign fire_b = ~fire_t_b;
@@ -297,6 +299,8 @@ module fire(
     input oncemark,
     input collect_achieve,
     input [7:0]now_num,
+    input trans,
+    
     output oe_15,
     output oe_20,
     output oe_nj,
@@ -339,8 +343,8 @@ module fire(
     reg [7:0] duration_cnt = 8'd0;
     reg start_fire = 1'b0 , start_fire_t = 1'b0;//开始发射
     
-    assign oe_15 = 1'b0;
-    assign oe_20 = oe_15_t;//oe_nj_t
+    assign oe_15 = trans ? 1'b0 : oe_15_t;
+    assign oe_20 = trans ? oe_15_t : 1'b0;//oe_nj_t
     assign oe_nj = oe_nj_t;//oe_15_t
     assign fire_a = fire_t_a;
     assign fire_b = ~fire_t_b;

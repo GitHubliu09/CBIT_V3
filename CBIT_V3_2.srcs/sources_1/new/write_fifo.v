@@ -77,14 +77,10 @@ begin
             if(counter == 16'd3)
             begin
                 en <= 1'b1;
-                if(speed == 1'b0 && m5m7_switch == 1'b0)
+                if(m5m7_switch == 1'b0)
                     data <= 16'h0105;
-                else if(speed == 1'b1 && m5m7_switch == 1'b0)
-                    data <= 16'h0405;
-                else if(speed == 1'b0 && m5m7_switch == 1'b1)
+                else
                     data <= 16'h0107;
-                else if(speed == 1'b1 && m5m7_switch == 1'b1)
-                    data <= 16'h0407;
             end
             if(counter == 16'd4)
             begin
@@ -106,13 +102,9 @@ begin
             if(counter == 16'd3)
             begin
                 en <= 1'b1;
-                if(speed == 1'b0 && m5m7_switch == 1'b0)
-                    data <= 16'h0105;
-                else if(speed == 1'b1 && m5m7_switch == 1'b0)
+                if(m5m7_switch == 1'b0)
                     data <= 16'h0405;
-                else if(speed == 1'b0 && m5m7_switch == 1'b1)
-                    data <= 16'h0107;
-                else if(speed == 1'b1 && m5m7_switch == 1'b1)
+                else
                     data <= 16'h0407;
             end
             if(counter == 16'd4)
@@ -135,14 +127,10 @@ begin
             if(counter == 16'd3)
             begin
                 en <= 1'b1;
-                if(speed == 1'b0 && m5m7_switch == 1'b0)
+                if(speed == 1'b0)
                     data <= 16'h0105;
-                else if(speed == 1'b1 && m5m7_switch == 1'b0)
+                else
                     data <= 16'h0405;
-                else if(speed == 1'b0 && m5m7_switch == 1'b1)
-                    data <= 16'h0107;
-                else if(speed == 1'b1 && m5m7_switch == 1'b1)
-                    data <= 16'h0407;
             end
             if(counter == 16'd4)
             begin
@@ -164,6 +152,31 @@ begin
             if(counter == 16'd3)
             begin
                 en <= 1'b1;
+                if(speed == 1'b0)
+                    data <= 16'h0107;
+                else
+                    data <= 16'h0407;
+            end
+            if(counter == 16'd4)
+            begin
+                en <= 1'b0;
+                counter <= 16'd0;
+                stop <= 1'b1;
+            end
+            else
+                counter <= counter + 1'b1;
+        end
+        
+        4'd5:
+        begin
+            if(counter == 16'd2)
+            begin
+                en <= 1'b1;
+                data <= 16'hc890;//0xc897
+            end
+            if(counter == 16'd3)
+            begin
+                en <= 1'b1;
                 if(speed == 1'b0 && m5m7_switch == 1'b0)
                     data <= 16'h0105;
                 else if(speed == 1'b1 && m5m7_switch == 1'b0)
@@ -183,7 +196,7 @@ begin
                 counter <= counter + 1'b1;
         end
         
-        4'd5:
+        4'd6:
         begin
             if(counter == 16'd2)
             begin
@@ -200,7 +213,7 @@ begin
                 counter <= counter + 1'b1;
         end
         
-        4'd6:
+        4'd7:
         begin
             if(counter == 16'd2)
             begin

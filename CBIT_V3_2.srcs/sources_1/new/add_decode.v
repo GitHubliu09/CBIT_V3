@@ -42,7 +42,7 @@ assign   oncemark_t =  rst ? 1'b0 : (add_in == 15'b000_1000_0000_0010 ? 1'b1 : 1
 assign   stopint_t = rst ? 1'b0 :(add_in == 15'b000_1001_0000_1111 ? 1'b1 : 1'b0);//0x090f
 
 assign   read_cmd_en_t = rst ? 1'b0 : (add_in[14:6] == 9'b000_1111_00 ? 1'b1 : 1'b0);//0x0fxx 当高9位为3C时，读取命令ram，低6位中，最高一位为选择位，选择读取命令的高八位还是第八位，剩下5位为地址
-assign   read_cmd_add_t = rst ? 6'd0 : ( read_cmd_en ? add_in[5:0] : 6'bz);
+assign   read_cmd_add_t = rst ? 6'd0 : ( read_cmd_en_t ? add_in[5:0] : 6'bz);
 
 assign   testpoint_t = rst ? 1'b0 :(add_in == 15'b111_1111_1111_1111 ? 1'b1 : 1'b0);//0xffff
 
@@ -135,7 +135,7 @@ assign   oncemark_t =  rst ? 1'b0 : (add_in == 15'b000_1000_0000_0010 ? 1'b1 : 1
 assign   stopint_t = rst ? 1'b0 :(add_in == 15'b000_1001_0000_1111 ? 1'b1 : 1'b0);//0x090f
 
 assign   read_cmd_en_t = rst ? 1'b0 : (add_in[14:6] == 9'b000_1111_00 ? 1'b1 : 1'b0);//0x0fxx 当高9位为3C时，读取命令ram，低6位中，最高一位为选择位，选择读取命令的高八位还是第八位，剩下5位为地址
-assign   read_cmd_add_t = rst ? 6'd0 : ( read_cmd_en ? add_in[5:0] : 6'bz);
+assign   read_cmd_add_t = rst ? 6'd0 : ( read_cmd_en_t ? add_in[5:0] : 6'bz);
 
 assign   testpoint_t = rst ? 1'b0 :(add_in == 15'b111_1111_1111_1111 ? 1'b1 : 1'b0);//0xffff
 

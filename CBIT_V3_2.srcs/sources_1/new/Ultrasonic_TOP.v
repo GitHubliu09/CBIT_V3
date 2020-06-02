@@ -67,7 +67,7 @@ wire [2:0]send_cmd;
 wire clk_adc_sample;
 wire [15:0]nj_data_time;
 /******************** state wire ***************************/
-wire speed , m5m7_switch;
+wire speed , m5m7_switch , trans;
 wire [15:0]message1,message2,message3,message4,message5,message6,message7,message8,message9,message10,message11;
 parameter self_version = 16'h0000;
 wire [7:0]now_num,now_num_d;
@@ -92,14 +92,12 @@ assign clk_24m = CLK24M;
 /************************* test wire ****************************/
 assign test1 = wadd == 13'd100 ? 1'b1:1'b0;
 assign test2 = now_num_d == 8'd250 ? 1'b1:1'b0;
-assign m7_bzo = m5_bzo;
-assign m7_boo = m5_boo;
 /*********************** 需要放到module里面 *****************************************************/
-assign gain[0] = oe_nj;
-assign gain[1] = oe_20;
-assign gain[2] = test_fire;
-assign gain[3] = sig_mux[1];
-assign gain[4] = test_adc;
+assign gain[0] = CLK20M;
+assign gain[1] = oe_15;
+assign gain[2] = bodymark;
+assign gain[3] = oncemark;
+assign gain[4] = sweep_write_en;
 //assign sig_mux = 2'b01;//00->GND , 01->1.5  , 10->2.0 , 11->mud
 /************************* parameter ***********************************************************/
 parameter delay_time = 8'd100;//delay time us //35//124//
@@ -152,7 +150,7 @@ cmd_pic cmd_pic(
     .bodymark(bodymark),
     .oncemark(oncemark),
 //    .stopmark(stopmark),
-    .sweep_num(sweep_num),
+    .sweep(sweep_num),
     .change_message(change_message),
     .message1(message1),
     .message2(message2),
@@ -170,6 +168,7 @@ cmd_pic cmd_pic(
     .send_cmd( send_cmd),
     .speed(speed),
     .m5m7_switch(m5m7_switch),
+    .trans(trans),
     .test(test_cmd)
 );
 
@@ -192,6 +191,7 @@ fire_all fire_all(
 //    .stopmark(stopmark),
     .collect_achieve(collect_achieve),
     .now_num(now_num_d),
+    .trans(trans),
     
     .oe_15(oe_15),
     .oe_20(oe_20),
@@ -295,6 +295,8 @@ edib edib(
     .stop_message(stop_message),
     .m5_bzo(m5_bzo),
     .m5_boo(m5_boo),
+    .m7_bzo( m7_bzo),
+    .m7_boo( m7_boo),
     .m2_bzo(m2_bzo),
     .m2_boo(m2_boo),
     .test(test_edib),

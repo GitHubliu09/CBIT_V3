@@ -56,13 +56,13 @@ wire test_collect,test_collect2;
 reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 
 //test
-assign upload_nj = 1'b1;
+//assign upload_nj = 1'b1;
 
 assign sweep_add = upload_nj ? radd_nj[0] : radd_un[0];
 assign sweep_data = upload_nj ? rdata_nj : rdata_un;
 assign sweep_write_en = upload_nj ? sweep_write_en_nj : sweep_write_en_t;
-assign test = nj_w_en;
-assign test2 = sweep_write_en_t;
+assign test = upload_nj;
+assign test2 = sweep_write_en_nj;
 
 
 always@(negedge CLK60M or posedge rst)
@@ -154,7 +154,7 @@ calculate_nj calculate_nj(
     .data_peak(  ),
  //   .calculate_once(calculate_once),
     .calculate_achieve( nj_calculate_achieve  ),
-    .upload_nj(  )
+    .upload_nj( upload_nj )
 );
 
 collect collect(
@@ -286,13 +286,13 @@ wire test_collect,test_collect2;
 reg [15:0]data_un_test,data_un_test2,data_un_test3,data_un_test4;
 
 //test
-assign upload_nj = 1'b1;
+//assign upload_nj = 1'b1;
 
 assign sweep_add = upload_nj ? radd_nj[0] : radd_un[0];
 assign sweep_data = upload_nj ? rdata_nj : rdata_un;
 assign sweep_write_en = upload_nj ? sweep_write_en_nj : sweep_write_en_t;
-assign test = nj_w_en;
-assign test2 = sweep_write_en_t;
+assign test = upload_nj;
+assign test2 = sweep_write_en_nj;
 
 
 always@(negedge CLK60M or posedge rst)
@@ -384,7 +384,7 @@ calculate_nj calculate_nj(
     .data_peak(  ),
  //   .calculate_once(calculate_once),
     .calculate_achieve( nj_calculate_achieve  ),
-    .upload_nj(  )
+    .upload_nj( upload_nj )
 );
 
 collect collect(

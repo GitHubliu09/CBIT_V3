@@ -12,12 +12,13 @@ module add_test(
     output [14:0]add
     );
 
-reg [4:0]state;
-parameter IDLE = 5'b00001;
-parameter SEND = 5'b00010;
-parameter BODY = 5'b00100;
-parameter ONCE = 5'b01000;
-parameter WAIT = 5'b10000;
+reg [5:0]state;
+parameter IDLE = 6'b000001;
+parameter SEND = 6'b000010;
+parameter BODY = 6'b000100;
+parameter ONCE = 6'b001000;
+parameter SENDOTHERS = 6'b010000;
+parameter WAIT = 6'b100000;
 
 reg [7:0]data_t = 8'b0;
 reg [14:0]add_t = 15'd0;
@@ -62,7 +63,15 @@ begin
         begin
             add_t <= 15'h0802;
             num <= num + 1'b1;
+            state <= SENDOTHERS;
+        end
+        SENDOTHERS:
+        begin
             state <= WAIT;
+            if(num == 8'd3)
+                add_t <= 15'h0000;
+            else
+                add_t <= 15'h0000;
         end
         WAIT:
         begin
@@ -102,12 +111,13 @@ module add_test(
     output [14:0]add
     );
 
-reg [4:0]state;
-parameter IDLE = 5'b00001;
-parameter SEND = 5'b00010;
-parameter BODY = 5'b00100;
-parameter ONCE = 5'b01000;
-parameter WAIT = 5'b10000;
+reg [5:0]state;
+parameter IDLE = 6'b000001;
+parameter SEND = 6'b000010;
+parameter BODY = 6'b000100;
+parameter ONCE = 6'b001000;
+parameter SENDOTHERS = 6'b010000;
+parameter WAIT = 6'b100000;
 
 reg [7:0]data_t = 8'b0;
 reg [14:0]add_t = 15'd0;
@@ -152,7 +162,15 @@ begin
         begin
             add_t <= 15'h0802;
             num <= num + 1'b1;
+            state <= SENDOTHERS;
+        end
+        SENDOTHERS:
+        begin
             state <= WAIT;
+            if(num == 8'd3)
+                add_t <= 15'h0000;
+            else
+                add_t <= 15'h0000;
         end
         WAIT:
         begin
